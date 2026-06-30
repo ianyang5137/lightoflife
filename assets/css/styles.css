@@ -602,21 +602,6 @@ button {
   stroke: none;
 }
 
-.youtube-mark::after {
-  content: "LIVE";
-  position: absolute;
-  right: 5px;
-  bottom: 5px;
-  padding: 1px 4px;
-  border-radius: 999px;
-  background: #fff;
-  color: #c7342d;
-  font-size: 7px;
-  font-weight: 800;
-  line-height: 1.25;
-  letter-spacing: 0;
-}
-
 .book-mark {
   color: var(--green);
 }
