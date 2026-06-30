@@ -255,16 +255,16 @@ button {
 }
 
 .button-primary {
-  border-color: var(--green);
-  background: var(--green);
-  color: #fff;
+  border-color: rgba(18, 60, 52, 0.42);
+  background: linear-gradient(180deg, #efd9a1, #d7ad60);
+  color: var(--green-deep);
 }
 
 .button-primary:hover,
 .button-primary:focus-visible {
-  border-color: var(--gold);
-  background: var(--green-deep);
-  color: #fff;
+  border-color: var(--green-deep);
+  background: linear-gradient(180deg, #fff3d4, #e4bd72);
+  color: var(--green-deep);
 }
 
 .button-secondary {
