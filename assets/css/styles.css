@@ -316,43 +316,21 @@ button {
   letter-spacing: 0;
 }
 
-.welcome-grid p:last-child {
+.welcome-copy p {
   margin: 0;
   color: rgba(255, 255, 255, 0.86);
   font-size: 1.08rem;
 }
 
-.local-seo-band {
-  padding: clamp(42px, 6vw, 72px) 0;
-  background: linear-gradient(180deg, #fff, var(--bg));
-  border-bottom: 1px solid var(--line);
-}
-
-.local-seo-grid {
-  display: grid;
-  grid-template-columns: minmax(260px, 0.82fr) minmax(0, 1.18fr);
-  gap: clamp(28px, 6vw, 72px);
-  align-items: start;
-}
-
-.local-seo-grid h2 {
-  margin: 0;
-  color: var(--green-deep);
-  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
-  line-height: 1.16;
-}
-
-.local-seo-copy p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 1.06rem;
+.welcome-copy p + p {
+  margin-top: 14px;
 }
 
 .local-keywords {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  margin-top: 20px;
+  margin-top: 22px;
 }
 
 .local-keywords span {
@@ -360,10 +338,10 @@ button {
   align-items: center;
   min-height: 34px;
   padding: 7px 12px;
-  border: 1px solid rgba(37, 95, 82, 0.14);
+  border: 1px solid rgba(234, 220, 192, 0.34);
   border-radius: 999px;
-  background: #fff;
-  color: var(--green);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
   font-size: 0.9rem;
   font-weight: 900;
 }
@@ -1099,7 +1077,6 @@ dd {
   }
 
   .welcome-grid,
-  .local-seo-grid,
   .giving-panel,
   .two-column,
   .new-grid,
