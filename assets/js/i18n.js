@@ -59,7 +59,7 @@ const translations = {
     "messages.kicker": "Messages & News",
     "messages.title": "主日信息與近期活動",
     "messages.copy": "歡迎透過 YouTube 頻道觀看主日信息、敬拜與近期聚會更新。",
-    "messages.button": "觀看 YouTube 信息",
+    "messages.button": "在線觀看",
     "giving.kicker": "Giving",
     "giving.title": "奉獻",
     "giving.copy": "若你願意以奉獻支持教會事工，請使用以下銀行帳戶資料。",
