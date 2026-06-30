@@ -255,15 +255,15 @@ button {
 }
 
 .button-primary {
-  border-color: rgba(18, 60, 52, 0.42);
-  background: linear-gradient(180deg, #efd9a1, #d7ad60);
+  border-color: rgba(18, 60, 52, 0.22);
+  background: #fff7e3;
   color: var(--green-deep);
 }
 
 .button-primary:hover,
 .button-primary:focus-visible {
   border-color: var(--green-deep);
-  background: linear-gradient(180deg, #fff3d4, #e4bd72);
+  background: var(--gold-soft);
   color: var(--green-deep);
 }
 
@@ -665,9 +665,33 @@ button {
   color: var(--muted);
 }
 
-.online-card .button {
+.online-card .button,
+.zoom-action-row {
   margin-top: auto;
+}
+
+.online-card .button {
   align-self: flex-start;
+}
+
+.zoom-action-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.zoom-code {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--green);
+  font-size: 0.92rem;
+  font-weight: 900;
 }
 
 .updates-panel {
@@ -1154,6 +1178,11 @@ dd {
 
   .online-card .button {
     align-self: stretch;
+  }
+
+  .zoom-code {
+    width: 100%;
+    justify-content: center;
   }
 
   .updates-tabs {
