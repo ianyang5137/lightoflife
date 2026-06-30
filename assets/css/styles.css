@@ -105,15 +105,15 @@ button {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
 .primary-nav a {
-  padding: 10px 12px;
+  padding: 10px 8px;
   border-radius: 8px;
   color: var(--muted);
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .primary-nav a:hover,
