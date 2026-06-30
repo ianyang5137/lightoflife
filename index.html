@@ -258,19 +258,60 @@
     </section>
 
     <section class="section" id="messages">
-      <div class="container message-panel">
-        <div>
+      <div class="container">
+        <div class="section-heading">
           <p class="section-kicker" data-i18n="messages.kicker">Messages & News</p>
-          <h2 data-i18n="messages.title">主日信息與近期活動</h2>
-          <p data-i18n="messages.copy">歡迎透過 YouTube 頻道觀看主日信息、敬拜與近期聚會更新。</p>
+          <h2 data-i18n="messages.title">主日信息與線上讀經</h2>
+          <p data-i18n="messages.copy">透過 YouTube 收看主日信息，也歡迎每週在線上一同讀經、思想神的話語。</p>
         </div>
-        <a class="button button-outline youtube-button" href="https://www.youtube.com/@生命之光灵粮堂教会" target="_blank" rel="noopener">
-          <svg class="button-icon" aria-hidden="true" viewBox="0 0 24 24" focusable="false">
-            <path d="M21.6 7.2a2.8 2.8 0 0 0-2-2c-1.8-.5-7.6-.5-7.6-.5s-5.8 0-7.6.5a2.8 2.8 0 0 0-2 2A29 29 0 0 0 2 12a29 29 0 0 0 .4 4.8 2.8 2.8 0 0 0 2 2c1.8.5 7.6.5 7.6.5s5.8 0 7.6-.5a2.8 2.8 0 0 0 2-2A29 29 0 0 0 22 12a29 29 0 0 0-.4-4.8Z" />
-            <path class="button-icon-cutout" d="m10 15.3 5.2-3.3L10 8.7v6.6Z" />
-          </svg>
-          <span data-i18n="messages.button">在線觀看</span>
-        </a>
+
+        <div class="online-grid">
+          <article class="online-card">
+            <div class="online-card-icon youtube-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d="M21.6 7.2a2.8 2.8 0 0 0-2-2c-1.8-.5-7.6-.5-7.6-.5s-5.8 0-7.6.5a2.8 2.8 0 0 0-2 2A29 29 0 0 0 2 12a29 29 0 0 0 .4 4.8 2.8 2.8 0 0 0 2 2c1.8.5 7.6.5 7.6.5s5.8 0 7.6-.5a2.8 2.8 0 0 0 2-2A29 29 0 0 0 22 12a29 29 0 0 0-.4-4.8Z" />
+                <path class="button-icon-cutout" d="m10 15.3 5.2-3.3L10 8.7v6.6Z" />
+              </svg>
+            </div>
+            <div>
+              <p class="online-label">YouTube</p>
+              <h3>主日信息</h3>
+              <p>觀看主日信息、敬拜與近期聚會更新。</p>
+            </div>
+            <a class="button button-outline youtube-button" href="https://www.youtube.com/@生命之光灵粮堂教会" target="_blank" rel="noopener">
+              <svg class="button-icon" aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+                <path d="M21.6 7.2a2.8 2.8 0 0 0-2-2c-1.8-.5-7.6-.5-7.6-.5s-5.8 0-7.6.5a2.8 2.8 0 0 0-2 2A29 29 0 0 0 2 12a29 29 0 0 0 .4 4.8 2.8 2.8 0 0 0 2 2c1.8.5 7.6.5 7.6.5s5.8 0 7.6-.5a2.8 2.8 0 0 0 2-2A29 29 0 0 0 22 12a29 29 0 0 0-.4-4.8Z" />
+                <path class="button-icon-cutout" d="m10 15.3 5.2-3.3L10 8.7v6.6Z" />
+              </svg>
+              <span data-i18n="messages.button">在線觀看</span>
+            </a>
+          </article>
+
+          <article class="online-card scripture-card">
+            <div class="online-card-icon book-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H20v17H7.5A2.5 2.5 0 0 0 5 21.5v-17Z" />
+                <path d="M5 4.5A2.5 2.5 0 0 0 2.5 2H4v19.5A2.5 2.5 0 0 1 6.5 19H20" />
+                <path d="M9 6h6M9 9h7M9 12h5" />
+              </svg>
+            </div>
+            <div>
+              <p class="online-label">Zoom 842 707 8200</p>
+              <h3>線上讀經</h3>
+              <p>每週晚上 7:30，一起讀經、分享與彼此勉勵。</p>
+              <p class="scripture-passage">本次經文：《約伯記》第 22–27 章</p>
+            </div>
+            <div class="question-list" aria-label="本次思想問題">
+              <p>本次思想問題</p>
+              <ol>
+                <li>我們能否用財富、健康、事業和家庭來判斷一個人是否蒙福？</li>
+                <li>當別人遭遇困難時，如何避免急著判斷？</li>
+                <li>如果你來安慰約伯，你會說什麼？</li>
+              </ol>
+            </div>
+            <a class="button button-primary" href="https://zoom.us/j/8427078200" target="_blank" rel="noopener">加入線上讀經</a>
+          </article>
+        </div>
       </div>
     </section>
 
