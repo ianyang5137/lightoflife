@@ -724,6 +724,20 @@ dd {
   margin: 0;
 }
 
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.footer-links a {
+  color: #fff;
+  font-weight: 900;
+  border-bottom: 2px solid var(--gold);
+}
+
 .back-to-top {
   position: fixed;
   right: 20px;
@@ -880,5 +894,11 @@ dd {
   .contact-card,
   .message-panel {
     padding: 22px;
+  }
+
+  .footer-inner,
+  .footer-links {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

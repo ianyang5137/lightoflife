@@ -58,8 +58,8 @@ const translations = {
     "ministries.community.copy": "以實際行動關心新移民、家庭、學生與城市需要。",
     "messages.kicker": "Messages & News",
     "messages.title": "主日信息與近期活動",
-    "messages.copy": "未來可以在這裡放 YouTube 信息、Facebook 活動、週報或特別聚會。",
-    "messages.button": "提供最新消息",
+    "messages.copy": "歡迎透過 YouTube 頻道觀看主日信息、敬拜與近期聚會更新。",
+    "messages.button": "觀看 YouTube 信息",
     "giving.kicker": "Giving",
     "giving.title": "奉獻",
     "giving.copy": "若你願意以奉獻支持教會事工，請使用以下銀行帳戶資料。",
@@ -82,6 +82,7 @@ const translations = {
     "contact.button": "發送 Email",
     "contact.mapButton": "開啟地圖",
     "footer.name": "紐西蘭奧克蘭生命之光靈糧堂",
+    "footer.youtube": "YouTube 頻道",
     "footer.copy": "© 2026 Light of Life, Bread of Life Christian Church in Auckland, New Zealand."
   },
   en: {
@@ -143,8 +144,8 @@ const translations = {
     "ministries.community.copy": "Serving new migrants, families, students, and the needs of the city in practical ways.",
     "messages.kicker": "Messages & News",
     "messages.title": "Messages and Upcoming Events",
-    "messages.copy": "This section can later include YouTube sermons, Facebook events, weekly bulletins, or special gatherings.",
-    "messages.button": "Share latest updates",
+    "messages.copy": "Watch Sunday messages, worship, and recent church updates on our YouTube channel.",
+    "messages.button": "Watch on YouTube",
     "giving.kicker": "Giving",
     "giving.title": "Giving",
     "giving.copy": "If you would like to support the ministry of the church through giving, please use the bank details below.",
@@ -167,6 +168,7 @@ const translations = {
     "contact.button": "Send Email",
     "contact.mapButton": "Open Map",
     "footer.name": "Light of Life, Bread of Life Christian Church in Auckland, New Zealand",
+    "footer.youtube": "YouTube Channel",
     "footer.copy": "© 2026 Light of Life, Bread of Life Christian Church in Auckland, New Zealand."
   }
 };
