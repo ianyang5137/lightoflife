@@ -499,6 +499,122 @@ button {
   color: var(--muted);
 }
 
+.updates-panel {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 18px 38px rgba(18, 53, 46, 0.08);
+}
+
+.updates-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+  background: #faf7ef;
+}
+
+.updates-tabs button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 16px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.updates-tabs button.active,
+.updates-tabs button:focus-visible {
+  color: #fff;
+  background: var(--green);
+}
+
+.updates-content {
+  padding: clamp(18px, 3vw, 28px);
+}
+
+.roster-table-wrap {
+  overflow-x: auto;
+}
+
+.roster-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 0.96rem;
+}
+
+.roster-table caption {
+  margin-bottom: 14px;
+  color: var(--green);
+  font-weight: 900;
+  text-align: left;
+}
+
+.roster-table th,
+.roster-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(31, 77, 67, 0.12);
+  text-align: left;
+  vertical-align: top;
+}
+
+.roster-table thead th {
+  color: #fff;
+  background: var(--green);
+}
+
+.roster-table tbody th {
+  width: 150px;
+  color: var(--green);
+  font-weight: 900;
+  background: #fbfaf6;
+}
+
+.roster-table tbody tr:nth-child(even) td,
+.roster-table tbody tr:nth-child(even) th {
+  background: #f8f4ea;
+}
+
+.prayer-list {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: prayer;
+}
+
+.prayer-list li {
+  position: relative;
+  min-height: 58px;
+  padding: 16px 18px 16px 58px;
+  border: 1px solid rgba(31, 77, 67, 0.12);
+  border-radius: 8px;
+  background: #fbfaf6;
+  color: var(--muted);
+}
+
+.prayer-list li::before {
+  counter-increment: prayer;
+  content: counter(prayer);
+  position: absolute;
+  left: 18px;
+  top: 16px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(201, 156, 74, 0.18);
+  color: var(--green);
+  font-size: 0.85rem;
+  font-weight: 900;
+}
+
 .giving-section {
   color: #fff;
   background:
@@ -860,6 +976,11 @@ dd {
   .hero-actions .button,
   .message-panel .button {
     width: 100%;
+  }
+
+  .updates-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 
   .back-to-top {

@@ -255,6 +255,22 @@ if ("IntersectionObserver" in window) {
   updateActiveNav();
 }
 
+document.querySelectorAll("[data-updates-tab]").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    const target = tab.dataset.updatesTab;
+    document.querySelectorAll("[data-updates-tab]").forEach((button) => {
+      const isActive = button.dataset.updatesTab === target;
+      button.classList.toggle("active", isActive);
+      button.setAttribute("aria-selected", String(isActive));
+    });
+    document.querySelectorAll("[data-updates-panel]").forEach((panel) => {
+      const isActive = panel.dataset.updatesPanel === target;
+      panel.classList.toggle("active", isActive);
+      panel.hidden = !isActive;
+    });
+  });
+});
+
 const backToTopButton = document.querySelector("[data-back-to-top]");
 
 const toggleBackToTop = () => {
