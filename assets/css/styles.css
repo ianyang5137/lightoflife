@@ -613,6 +613,33 @@ button {
   color: var(--muted);
 }
 
+.message-feature-list {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.message-feature-list li {
+  position: relative;
+  padding-left: 22px;
+  color: var(--green);
+  font-weight: 800;
+}
+
+.message-feature-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.65em;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+  transform: translateY(-50%);
+}
+
 .scripture-passage {
   margin-top: 12px !important;
   padding-left: 12px;
