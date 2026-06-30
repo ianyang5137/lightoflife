@@ -427,16 +427,13 @@ button {
 }
 
 .service-time-highlight {
-  display: inline-flex;
-  align-items: center;
-  margin: 4px 0 14px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--green), #2d7464);
-  color: #fff !important;
-  box-shadow: 0 12px 24px rgba(31, 77, 67, 0.2);
-  font-size: 1.05rem;
+  margin: 2px 0 10px;
+  padding-left: 12px;
+  border-left: 3px solid var(--gold);
+  color: var(--green) !important;
+  font-size: 1rem;
   font-weight: 900;
+  line-height: 1.35;
 }
 
 .ministry-grid article {
