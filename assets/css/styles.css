@@ -577,8 +577,15 @@ button {
   height: 30px;
 }
 
+.youtube-mark {
+  background: var(--green);
+  color: #fff;
+}
+
 .youtube-mark svg {
-  fill: #ff0000;
+  width: 28px;
+  height: 28px;
+  fill: currentColor;
 }
 
 .book-mark {
