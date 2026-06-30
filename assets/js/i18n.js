@@ -179,14 +179,20 @@ const setLanguage = (lang) => {
   document.querySelectorAll("[data-lang]").forEach((button) => {
     button.classList.toggle("active", button.dataset.lang === lang);
   });
-  localStorage.setItem("lifeLightLanguage", lang);
 };
 
-const savedLanguage = localStorage.getItem("lifeLightLanguage") || "zh-Hant";
-setLanguage(savedLanguage);
+const getPathLanguage = () => {
+  const normalizedPath = window.location.pathname.replace(/\/+$/, "");
+  return normalizedPath === "/en" || normalizedPath.startsWith("/en/") ? "en" : "zh-Hant";
+};
+
+setLanguage(getPathLanguage());
 
 document.querySelectorAll("[data-lang]").forEach((button) => {
-  button.addEventListener("click", () => setLanguage(button.dataset.lang));
+  button.addEventListener("click", () => {
+    const hash = window.location.hash || "";
+    window.location.href = button.dataset.lang === "en" ? `/en/${hash}` : `/${hash}`;
+  });
 });
 
 const menuButton = document.querySelector("[data-menu-button]");
