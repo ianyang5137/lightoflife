@@ -570,6 +570,7 @@ button {
   place-items: center;
   border-radius: 8px;
   background: rgba(31, 77, 67, 0.08);
+  position: relative;
 }
 
 .online-card-icon svg {
@@ -578,14 +579,39 @@ button {
 }
 
 .youtube-mark {
-  background: var(--green);
-  color: #fff;
+  background: rgba(31, 77, 67, 0.08);
+  border: 1px solid rgba(31, 77, 67, 0.08);
+  color: var(--green);
 }
 
 .youtube-mark svg {
   width: 28px;
   height: 28px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.youtube-mark .play-fill {
   fill: currentColor;
+  stroke: none;
+}
+
+.youtube-mark::after {
+  content: "LIVE";
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  padding: 1px 4px;
+  border-radius: 999px;
+  background: #fff;
+  color: #c7342d;
+  font-size: 7px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: 0;
 }
 
 .book-mark {
