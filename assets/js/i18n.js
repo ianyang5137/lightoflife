@@ -190,8 +190,7 @@ setLanguage(getPathLanguage());
 
 document.querySelectorAll("[data-lang]").forEach((button) => {
   button.addEventListener("click", () => {
-    const hash = window.location.hash || "";
-    window.location.href = button.dataset.lang === "en" ? `/en/${hash}` : `/${hash}`;
+    window.location.href = button.dataset.lang === "en" ? "/en/" : "/";
   });
 });
 
@@ -211,6 +210,50 @@ primaryNav.querySelectorAll("a").forEach((link) => {
     menuButton.setAttribute("aria-expanded", "false");
   });
 });
+
+const sectionLinks = Array.from(primaryNav.querySelectorAll('a[href^="#"]'));
+const observedSections = sectionLinks
+  .map((link) => document.querySelector(link.getAttribute("href")))
+  .filter(Boolean);
+
+const setActiveNav = (id) => {
+  sectionLinks.forEach((link) => {
+    link.classList.toggle("active", link.getAttribute("href") === `#${id}`);
+  });
+};
+
+if ("IntersectionObserver" in window) {
+  const navObserver = new IntersectionObserver(
+    (entries) => {
+      const visibleEntry = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (visibleEntry) {
+        setActiveNav(visibleEntry.target.id);
+      }
+    },
+    {
+      rootMargin: "-35% 0px -50% 0px",
+      threshold: [0.1, 0.35, 0.6]
+    }
+  );
+
+  observedSections.forEach((section) => navObserver.observe(section));
+} else {
+  const updateActiveNav = () => {
+    let currentSection = null;
+    for (const section of observedSections) {
+      if (section.getBoundingClientRect().top <= 180) {
+        currentSection = section;
+      }
+    }
+    if (currentSection) {
+      setActiveNav(currentSection.id);
+    }
+  };
+  window.addEventListener("scroll", updateActiveNav, { passive: true });
+  updateActiveNav();
+}
 
 const backToTopButton = document.querySelector("[data-back-to-top]");
 
