@@ -15,6 +15,8 @@
   --sky: #dce8e2;
   --shadow: 0 22px 55px var(--green-shadow);
   --max: 1160px;
+  --font-body: "Inter", "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", Arial, sans-serif;
+  --font-heading: "Noto Serif TC", "Noto Sans TC", "Times New Roman", serif;
 }
 
 * {
@@ -29,11 +31,18 @@ html {
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+  font-family: var(--font-body);
   color: var(--ink);
   background: var(--bg);
   line-height: 1.65;
   min-height: 100vh;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  font-weight: 700;
 }
 
 body.menu-open {
