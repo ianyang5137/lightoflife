@@ -255,15 +255,15 @@ button {
 }
 
 .button-primary {
-  border-color: rgba(18, 60, 52, 0.22);
-  background: #fff7e3;
+  border-color: rgba(18, 60, 52, 0.18);
+  background: var(--gold);
   color: var(--green-deep);
 }
 
 .button-primary:hover,
 .button-primary:focus-visible {
   border-color: var(--green-deep);
-  background: var(--gold-soft);
+  background: #c99a4a;
   color: var(--green-deep);
 }
 
