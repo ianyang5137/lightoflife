@@ -409,28 +409,6 @@ button {
   height: 520px;
 }
 
-.welcome-image-panel {
-  position: relative;
-  background:
-    linear-gradient(rgba(18, 60, 52, 0.16), rgba(18, 60, 52, 0.16)),
-    url("/assets/images/new-here-welcome.jpg") center / cover;
-}
-
-.welcome-image-panel::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(251, 250, 246, 0.16);
-  backdrop-filter: blur(14px);
-}
-
-.welcome-image-panel img {
-  position: relative;
-  z-index: 1;
-  object-fit: contain;
-  padding: clamp(14px, 2vw, 22px);
-}
-
 .section-heading {
   max-width: 720px;
   margin-bottom: 34px;
