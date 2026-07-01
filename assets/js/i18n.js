@@ -4,13 +4,20 @@ if ("scrollRestoration" in window.history) {
 
 const resetTopOnPlainPageLoad = () => {
   if (!window.location.hash) {
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }
 };
 
-resetTopOnPlainPageLoad();
-window.addEventListener("load", resetTopOnPlainPageLoad);
-window.addEventListener("pageshow", resetTopOnPlainPageLoad);
+const keepPlainPageLoadAtTop = () => {
+  resetTopOnPlainPageLoad();
+  requestAnimationFrame(resetTopOnPlainPageLoad);
+  window.setTimeout(resetTopOnPlainPageLoad, 80);
+  window.setTimeout(resetTopOnPlainPageLoad, 260);
+};
+
+keepPlainPageLoadAtTop();
+window.addEventListener("load", keepPlainPageLoadAtTop);
+window.addEventListener("pageshow", keepPlainPageLoadAtTop);
 
 const translations = {
   "zh-Hant": {
