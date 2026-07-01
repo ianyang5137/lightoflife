@@ -99,6 +99,7 @@ button {
   width: clamp(176px, 20vw, 260px);
   height: auto;
   display: block;
+  filter: brightness(0) saturate(100%) invert(18%) sepia(20%) saturate(969%) hue-rotate(119deg) brightness(94%) contrast(93%);
 }
 
 .primary-nav {
