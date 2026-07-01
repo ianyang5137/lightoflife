@@ -26,7 +26,7 @@
 
 html {
   scroll-behavior: smooth;
-  background: var(--green);
+  background: var(--green-deep);
   accent-color: var(--green);
 }
 
@@ -34,7 +34,7 @@ body {
   margin: 0;
   font-family: var(--font-body);
   color: var(--ink);
-  background: var(--green);
+  background: var(--green-deep);
   line-height: 1.75;
   min-height: 100vh;
 }
@@ -102,12 +102,12 @@ button {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: var(--green);
+  background: var(--green-deep);
   border-bottom: 1px solid var(--line);
 }
 
 .topbar {
-  background: var(--green);
+  background: var(--green-deep);
   color: rgba(255, 255, 255, 0.88);
   font-size: 0.88rem;
 }
