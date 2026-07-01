@@ -1067,7 +1067,7 @@ dd {
 
 .back-to-top:hover,
 .back-to-top:focus-visible {
-  border-color: var(--gold);
+  border-color: rgba(255, 255, 255, 0.2);
   background: var(--green-deep);
   color: #fff;
 }
