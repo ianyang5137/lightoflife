@@ -583,11 +583,6 @@ button {
   stroke-linejoin: round;
 }
 
-.youtube-mark .play-fill {
-  fill: currentColor;
-  stroke: none;
-}
-
 .book-mark {
   color: var(--green);
 }
