@@ -3,7 +3,7 @@
   --surface: #ffffff;
   --surface-soft: #f4efe6;
   --ink: #17231f;
-  --muted: #66736f;
+  --muted: #52615d;
   --line: rgba(37, 95, 82, 0.14);
   --green: #255f52;
   --green-deep: #123c34;
@@ -15,7 +15,7 @@
   --sky: #dce8e2;
   --shadow: 0 22px 55px var(--green-shadow);
   --max: 1160px;
-  --font-body: "Inter", "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", Arial, sans-serif;
+  --font-body: "Noto Sans TC", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", Arial, sans-serif;
   --font-heading: "LXGW WenKai TC", "Noto Sans TC", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", Arial, sans-serif;
 }
 
@@ -34,7 +34,7 @@ body {
   font-family: var(--font-body);
   color: var(--ink);
   background: var(--bg);
-  line-height: 1.65;
+  line-height: 1.75;
   min-height: 100vh;
 }
 
@@ -160,7 +160,7 @@ button {
   background: transparent;
   color: var(--muted);
   cursor: pointer;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .language-switch button.active {
@@ -226,7 +226,7 @@ button {
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-size: 0.78rem;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .hero h1 {
@@ -265,7 +265,7 @@ button {
   padding: 12px 20px;
   border-radius: 8px;
   border: 1px solid transparent;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.2;
 }
 
@@ -366,7 +366,7 @@ button {
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
   font-size: 0.9rem;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .section {
@@ -489,7 +489,7 @@ button {
   border-left: 3px solid var(--gold);
   color: var(--green) !important;
   font-size: 1rem;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.35;
 }
 
@@ -528,7 +528,7 @@ button {
 
 .text-link {
   color: var(--green);
-  font-weight: 900;
+  font-weight: 700;
   border-bottom: 2px solid var(--gold);
 }
 
@@ -616,7 +616,7 @@ button {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.78rem;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .online-card h3 {
@@ -652,7 +652,7 @@ button {
   padding-left: 12px;
   border-left: 3px solid var(--gold);
   color: var(--green) !important;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .question-list {
@@ -664,7 +664,7 @@ button {
 .question-list > p {
   margin-bottom: 10px;
   color: var(--green);
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .question-list ol {
@@ -701,7 +701,7 @@ button {
   background: #fff;
   color: var(--green);
   font-size: 0.92rem;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .updates-panel {
@@ -728,7 +728,7 @@ button {
   background: transparent;
   color: var(--muted);
   cursor: pointer;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .updates-tabs button.active,
@@ -755,7 +755,7 @@ button {
 .roster-table caption {
   margin-bottom: 14px;
   color: var(--green);
-  font-weight: 900;
+  font-weight: 700;
   text-align: left;
 }
 
@@ -775,7 +775,7 @@ button {
 .roster-table tbody th {
   width: 150px;
   color: var(--green);
-  font-weight: 900;
+  font-weight: 700;
   background: #fbfaf6;
 }
 
@@ -817,7 +817,7 @@ button {
   background: rgba(184, 138, 61, 0.18);
   color: var(--green);
   font-size: 0.85rem;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .giving-section {
@@ -898,7 +898,7 @@ button {
 
 .giving-card dt {
   color: var(--green);
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .giving-card dd {
@@ -907,7 +907,7 @@ button {
 
 .giving-card dd {
   overflow-wrap: anywhere;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--ink);
 }
 
@@ -958,7 +958,7 @@ button {
 .contact-list dt {
   color: var(--green);
   font-size: 0.9rem;
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .contact-list dd {
@@ -1005,7 +1005,7 @@ dl div {
 
 dt {
   color: var(--green);
-  font-weight: 900;
+  font-weight: 700;
 }
 
 dd {
@@ -1037,7 +1037,7 @@ dd {
 
 .footer-links a {
   color: #fff;
-  font-weight: 900;
+  font-weight: 700;
   border-bottom: 2px solid var(--gold);
 }
 
@@ -1057,7 +1057,7 @@ dd {
   box-shadow: 0 14px 28px rgba(18, 60, 52, 0.24);
   cursor: pointer;
   font-size: 1.35rem;
-  font-weight: 900;
+  font-weight: 700;
   opacity: 0;
   pointer-events: none;
   transform: translateY(12px);
