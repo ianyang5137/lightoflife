@@ -115,8 +115,57 @@ button {
 .topbar-inner {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 16px;
   padding: 8px 0;
+}
+
+.topbar-event {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  font-weight: 700;
+}
+
+.topbar-event span {
+  white-space: nowrap;
+}
+
+.topbar-event span + span::before {
+  content: "";
+  display: inline-block;
+  width: 1px;
+  height: 0.95em;
+  margin-right: 10px;
+  vertical-align: -0.12em;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.topbar-event-detail {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.topbar-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 5px 12px;
+  border: 1px solid rgba(234, 220, 192, 0.42);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.topbar-action:hover,
+.topbar-action:focus-visible {
+  border-color: var(--gold-soft);
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
 }
 
 .nav-band {
@@ -1120,12 +1169,34 @@ dd {
   }
 
   .topbar-inner {
-    justify-content: center;
+    justify-content: space-between;
     text-align: center;
+    gap: 10px;
   }
 
-  .topbar-inner a:last-child {
+  .topbar-event {
+    justify-content: center;
+    gap: 6px;
+    overflow: hidden;
+    text-align: left;
+  }
+
+  .topbar-event-detail {
     display: none;
+  }
+
+  .topbar-event span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-event span + span::before {
+    margin-right: 6px;
+  }
+
+  .topbar-action {
+    min-height: 30px;
+    padding: 5px 10px;
   }
 
   .nav-row {
