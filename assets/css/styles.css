@@ -39,8 +39,8 @@ body {
 }
 
 html[lang="en"] {
-  --font-body: "Montserrat", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-  --font-heading: "Montserrat", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --font-body: "Manrope", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --font-heading: "Manrope", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
 }
 
 h1,
