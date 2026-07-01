@@ -1,3 +1,17 @@
+if ("scrollRestoration" in window.history) {
+  window.history.scrollRestoration = "manual";
+}
+
+const resetTopOnPlainPageLoad = () => {
+  if (!window.location.hash) {
+    window.scrollTo(0, 0);
+  }
+};
+
+resetTopOnPlainPageLoad();
+window.addEventListener("load", resetTopOnPlainPageLoad);
+window.addEventListener("pageshow", resetTopOnPlainPageLoad);
+
 const translations = {
   "zh-Hant": {
     "top.service": "主日崇拜 · 每週日下午 3:30",
