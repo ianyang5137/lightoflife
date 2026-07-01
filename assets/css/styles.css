@@ -82,6 +82,11 @@ button {
   font-family: var(--font-ui);
 }
 
+.numeric-text {
+  font-family: var(--font-ui);
+  font-variant-numeric: tabular-nums;
+}
+
 .container {
   width: min(var(--max), calc(100% - 40px));
   margin: 0 auto;
@@ -498,6 +503,7 @@ button {
 }
 
 .service-time-highlight {
+  font-family: var(--font-ui);
   margin: 2px 0 10px;
   padding-left: 12px;
   border-left: 3px solid var(--gold);
@@ -706,6 +712,7 @@ button {
 }
 
 .zoom-code {
+  font-family: var(--font-ui);
   display: inline-flex;
   align-items: center;
   min-height: 42px;
@@ -782,6 +789,7 @@ button {
 }
 
 .roster-table thead th {
+  font-family: var(--font-ui);
   color: #fff;
   background: var(--green);
 }
@@ -980,6 +988,11 @@ button {
   color: var(--ink);
   font-weight: 700;
   overflow-wrap: anywhere;
+}
+
+.contact-list a[href^="tel:"] {
+  font-family: var(--font-ui);
+  font-variant-numeric: tabular-nums;
 }
 
 .contact-list a {
