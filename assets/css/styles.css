@@ -17,6 +17,7 @@
   --max: 1160px;
   --font-body: "Zen Maru Gothic", "Noto Sans TC", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", Arial, sans-serif;
   --font-heading: "LXGW WenKai TC", "Noto Sans TC", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", Arial, sans-serif;
+  --font-ui: "Nunito Sans", "Noto Sans TC", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", Arial, sans-serif;
 }
 
 * {
@@ -41,6 +42,7 @@ body {
 html[lang="en"] {
   --font-body: "Source Sans 3", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
   --font-heading: "Manrope", "Source Sans 3", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --font-ui: "Manrope", "Source Sans 3", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
 }
 
 h1,
@@ -66,6 +68,18 @@ img {
 
 button {
   font: inherit;
+}
+
+.topbar,
+.primary-nav,
+.language-switch,
+.eyebrow,
+.section-kicker,
+.online-label,
+.button,
+.footer-links,
+.back-to-top {
+  font-family: var(--font-ui);
 }
 
 .container {
