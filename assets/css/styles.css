@@ -26,7 +26,7 @@
 
 html {
   scroll-behavior: smooth;
-  background: var(--green-deep);
+  background: var(--green);
   accent-color: var(--green);
 }
 
@@ -34,9 +34,15 @@ body {
   margin: 0;
   font-family: var(--font-body);
   color: var(--ink);
-  background: var(--bg);
+  background: var(--green);
   line-height: 1.75;
   min-height: 100vh;
+}
+
+.site-header,
+main,
+.site-footer {
+  background: var(--bg);
 }
 
 html[lang="en"] {
