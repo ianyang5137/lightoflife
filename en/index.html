@@ -30,15 +30,16 @@
   <meta name="theme-color" content="#123c34" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#123c34" media="(prefers-color-scheme: dark)" />
   <meta name="msapplication-TileColor" content="#123c34" />
+  <meta name="application-name" content="Light of Life Church Auckland" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="生命之光靈糧堂" />
-  <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="shortcut icon" href="/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="48x48" href="/assets/images/favicon-48x48.png" />
   <link rel="icon" type="image/png" sizes="96x96" href="/assets/images/favicon-96x96.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="/assets/images/icon-192x192.png" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="shortcut icon" href="/favicon.ico" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="mask-icon" href="/assets/images/safari-pinned-tab.svg" color="#123c34" />
   <link rel="manifest" href="/site.webmanifest" />
@@ -50,29 +51,51 @@
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Church",
-      "name": "Light of Life, Bread of Life Christian Church in Auckland",
-      "alternateName": [
-        "紐西蘭奧克蘭生命之光靈糧堂",
-        "生命之光灵粮堂"
-      ],
-      "url": "https://www.lightoflife.org.nz/",
-      "logo": "https://www.lightoflife.org.nz/assets/images/logo-transparent.png",
-      "image": "https://www.lightoflife.org.nz/assets/images/logo.png",
-      "email": "hongji6688@hotmail.com",
-      "telephone": "+64272888283",
-      "openingHours": "Su 15:30-17:30",
-      "areaServed": "Auckland, New Zealand",
-      "hasMap": "https://www.google.com/maps/search/?api=1&query=72%20View%20Road%2C%20Mount%20Eden%2C%20Auckland%201024",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "72 View Road, Mount Eden",
-        "addressLocality": "Auckland",
-        "postalCode": "1024",
-        "addressCountry": "NZ"
-      },
-      "sameAs": [
-        "https://www.youtube.com/@生命之光灵粮堂教会"
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://www.lightoflife.org.nz/#website",
+          "name": "生命之光靈糧堂",
+          "alternateName": [
+            "紐西蘭奧克蘭生命之光靈糧堂",
+            "生命之光灵粮堂",
+            "Light of Life Church Auckland",
+            "lightoflife.org.nz"
+          ],
+          "url": "https://www.lightoflife.org.nz/",
+          "publisher": {
+            "@id": "https://www.lightoflife.org.nz/#church"
+          }
+        },
+        {
+          "@type": "Church",
+          "@id": "https://www.lightoflife.org.nz/#church",
+          "name": "生命之光靈糧堂",
+          "alternateName": [
+            "紐西蘭奧克蘭生命之光靈糧堂",
+            "生命之光灵粮堂",
+            "Light of Life Church Auckland",
+            "Light of Life, Bread of Life Christian Church in Auckland"
+          ],
+          "url": "https://www.lightoflife.org.nz/",
+          "logo": "https://www.lightoflife.org.nz/assets/images/site-logo-512.png",
+          "image": "https://www.lightoflife.org.nz/assets/images/logo.png",
+          "email": "hongji6688@hotmail.com",
+          "telephone": "+64272888283",
+          "openingHours": "Su 15:30-17:30",
+          "areaServed": "Auckland, New Zealand",
+          "hasMap": "https://www.google.com/maps/search/?api=1&query=72%20View%20Road%2C%20Mount%20Eden%2C%20Auckland%201024",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "72 View Road, Mount Eden",
+            "addressLocality": "Auckland",
+            "postalCode": "1024",
+            "addressCountry": "NZ"
+          },
+          "sameAs": [
+            "https://www.youtube.com/@生命之光灵粮堂教会"
+          ]
+        }
       ]
     }
   </script>
