@@ -1,5 +1,6 @@
 const config = window.LOL_CMS_CONFIG;
 const client = window.supabase?.createClient(config.supabaseUrl, config.supabaseKey);
+const supabaseUsersUrl = "https://supabase.com/dashboard/project/odthwmpyhaqagdphcooi/auth/users";
 
 const sections = [
   { key: "gatherings", label: "聚會時間", kicker: "Gatherings" },
@@ -26,10 +27,15 @@ const body = $("[data-workspace-body]");
 const title = $("[data-workspace-title]");
 const kicker = $("[data-workspace-kicker]");
 const saveStatus = $("[data-save-status]");
+let statusTimer = null;
 
-const setStatus = (message, isError = false) => {
+const setStatus = (message, isError = false, autoClear = true) => {
+  window.clearTimeout(statusTimer);
   saveStatus.textContent = message || "";
-  saveStatus.style.color = isError ? "#a33d35" : "";
+  saveStatus.classList.toggle("error", isError);
+  if (message && autoClear) {
+    statusTimer = window.setTimeout(() => setStatus("", false, false), 3200);
+  }
 };
 
 const escapeHtml = (value = "") => String(value ?? "")
@@ -143,13 +149,37 @@ const loadSiteSection = async (sectionKey) => selectOne("site_sections", client
 );
 
 const saveSiteSection = async (sectionKey, payload) => {
-  setStatus("正在保存...");
+  setStatus("正在保存...", false, false);
   const { error } = await client
     .from("site_sections")
     .update({ ...payload, updated_by: state.profile.id })
     .eq("section_key", sectionKey);
   if (error) throw error;
   setStatus("已保存");
+};
+
+const runSave = async (event, action, successMessage = "已保存") => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const button = event.submitter || form.querySelector("button[type='submit']");
+  const originalText = button?.textContent;
+  if (button) {
+    button.disabled = true;
+    button.textContent = "保存中...";
+  }
+  setStatus("正在保存...", false, false);
+  try {
+    await action(new FormData(form), form);
+    setStatus(successMessage);
+  } catch (error) {
+    console.error(error);
+    setStatus(`保存失敗：${error.message}`, true, false);
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = originalText;
+    }
+  }
 };
 
 const renderGatherings = async () => {
@@ -182,9 +212,7 @@ const renderGatherings = async () => {
     </form>
   `;
 
-  $("[data-gatherings-form]").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
+  $("[data-gatherings-form]").addEventListener("submit", (event) => runSave(event, async (form) => {
     const updatedItems = items.map((item, index) => ({
       ...item,
       title_zh: form.get(`item_${index}_title_zh`),
@@ -200,7 +228,7 @@ const renderGatherings = async () => {
       title_en: form.get("title_en"),
       content: { ...section.content, items: updatedItems }
     });
-  });
+  }, "聚會時間已保存"));
 };
 
 const renderMessages = async () => {
@@ -222,9 +250,7 @@ const renderMessages = async () => {
       <div class="actions"><button class="primary-button" type="submit">保存主日信息</button></div>
     </form>
   `;
-  $("[data-messages-form]").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
+  $("[data-messages-form]").addEventListener("submit", (event) => runSave(event, async (form) => {
     await saveSiteSection("messages", {
       title_zh: form.get("title_zh"),
       title_en: form.get("title_en"),
@@ -238,7 +264,7 @@ const renderMessages = async () => {
         button_en: form.get("button_en")
       }
     });
-  });
+  }, "主日信息已保存"));
 };
 
 const renderBibleReading = async () => {
@@ -262,9 +288,7 @@ const renderBibleReading = async () => {
       <div class="actions"><button class="primary-button" type="submit">保存線上讀經</button></div>
     </form>
   `;
-  $("[data-bible-form]").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
+  $("[data-bible-form]").addEventListener("submit", (event) => runSave(event, async (form) => {
     await saveSiteSection("bible_reading", {
       title_zh: form.get("title_zh"),
       title_en: form.get("title_en"),
@@ -280,7 +304,7 @@ const renderBibleReading = async () => {
         questions_en: lines(form.get("questions_en"))
       }
     });
-  });
+  }, "線上讀經已保存"));
 };
 
 const loadLatestRoster = async () => {
@@ -325,15 +349,12 @@ const renderRoster = async () => {
       <div class="actions"><button class="primary-button" type="submit">保存服事表</button></div>
     </form>
   `;
-  $("[data-roster-form]").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
+  $("[data-roster-form]").addEventListener("submit", (event) => runSave(event, async (form) => {
     const rows = roster.rows.map((row, index) => ({
       ...row,
       current: form.get(`row_${index}_current`),
       next: form.get(`row_${index}_next`)
     }));
-    setStatus("正在保存...");
     const { error } = await client
       .from("service_rosters")
       .update({
@@ -346,8 +367,7 @@ const renderRoster = async () => {
       })
       .eq("id", roster.id);
     if (error) throw error;
-    setStatus("已保存");
-  });
+  }, "服事表已保存"));
 };
 
 const loadPrayerItems = async () => {
@@ -390,10 +410,7 @@ const renderPrayer = async () => {
     </div>
   `;
   $$("[data-prayer-form]").forEach((formElement) => {
-    formElement.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const form = new FormData(event.currentTarget);
-      setStatus("正在保存...");
+    formElement.addEventListener("submit", (event) => runSave(event, async (form, currentForm) => {
       const { error } = await client
         .from("prayer_items")
         .update({
@@ -403,15 +420,11 @@ const renderPrayer = async () => {
           body_en: form.get("body_en"),
           updated_by: state.profile.id
         })
-        .eq("id", event.currentTarget.dataset.id);
+        .eq("id", currentForm.dataset.id);
       if (error) throw error;
-      setStatus("已保存");
-    });
+    }, "代禱事項已保存"));
   });
-  $("[data-new-prayer-form]").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    setStatus("正在新增...");
+  $("[data-new-prayer-form]").addEventListener("submit", (event) => runSave(event, async (form) => {
     const { error } = await client
       .from("prayer_items")
       .insert({
@@ -427,9 +440,8 @@ const renderPrayer = async () => {
         updated_by: state.profile.id
       });
     if (error) throw error;
-    setStatus("已新增");
     renderPrayer();
-  });
+  }, "代禱事項已新增"));
 };
 
 const renderUsers = async () => {
@@ -442,7 +454,11 @@ const renderUsers = async () => {
   if (permissionError) throw permissionError;
   body.innerHTML = `
     <div class="stack">
-      <div class="empty-state">新增用户請先到 Supabase Authentication 建立帳號；用户第一次建立後會出現在這裡。普通用户只能編輯被勾選的板塊。</div>
+      <div class="empty-state">
+        新增用户請到
+        <a href="${supabaseUsersUrl}" target="_blank" rel="noopener">Supabase Authentication → Users</a>
+        點 <strong>Add user</strong> 建立帳號。用户第一次建立後會出現在這裡；再回到本頁設定角色與可編輯板塊。普通用户只能編輯被勾選的板塊。
+      </div>
       ${profiles.map((profile) => {
         const userPermissions = permissions
           .filter((permission) => permission.user_id === profile.id && permission.can_edit)
@@ -474,12 +490,9 @@ const renderUsers = async () => {
     </div>
   `;
   $$("[data-user-form]").forEach((formElement) => {
-    formElement.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const form = new FormData(event.currentTarget);
-      const userId = event.currentTarget.dataset.id;
+    formElement.addEventListener("submit", (event) => runSave(event, async (form, currentForm) => {
+      const userId = currentForm.dataset.id;
       const allowedSections = form.getAll("section");
-      setStatus("正在保存用户...");
       const { error: profileUpdateError } = await client
         .from("profiles")
         .update({
@@ -504,8 +517,7 @@ const renderUsers = async () => {
           })));
         if (insertError) throw insertError;
       }
-      setStatus("用户權限已保存");
-    });
+    }, "用户權限已保存"));
   });
 };
 

@@ -157,10 +157,48 @@ select:focus {
   transform: translateY(-1px);
 }
 
+.primary-button:disabled,
+.secondary-button:disabled,
+.danger-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+  transform: none;
+}
+
 .form-message,
 .save-status {
   min-height: 1.4em;
   color: var(--muted);
+}
+
+.save-status {
+  position: fixed;
+  top: 18px;
+  right: 20px;
+  z-index: 60;
+  min-width: 190px;
+  max-width: min(420px, calc(100vw - 40px));
+  padding: 12px 14px;
+  border: 1px solid rgba(37, 95, 82, 0.18);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--green);
+  box-shadow: var(--shadow);
+  font-weight: 800;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.save-status:not(:empty) {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.save-status.error {
+  border-color: rgba(163, 61, 53, 0.24);
+  color: var(--danger);
 }
 
 .dashboard {
@@ -351,6 +389,13 @@ select:focus {
   border-radius: 8px;
   color: var(--muted);
   background: rgba(255, 255, 255, 0.7);
+}
+
+.empty-state a {
+  color: var(--green);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 @media (max-width: 860px) {
