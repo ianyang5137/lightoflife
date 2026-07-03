@@ -2,8 +2,21 @@ if ("scrollRestoration" in window.history) {
   window.history.scrollRestoration = "manual";
 }
 
+const isReloadNavigation = () => {
+  const navigationEntry = performance.getEntriesByType?.("navigation")?.[0];
+  if (navigationEntry) {
+    return navigationEntry.type === "reload";
+  }
+  return performance.navigation?.type === 1;
+};
+
+const shouldStartAtTop = () => !window.location.hash || isReloadNavigation();
+
 const resetTopOnPlainPageLoad = () => {
-  if (!window.location.hash) {
+  if (shouldStartAtTop()) {
+    if (window.location.hash && isReloadNavigation()) {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }
 };
