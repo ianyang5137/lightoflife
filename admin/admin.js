@@ -92,6 +92,7 @@ const loadPermissions = async () => {
 const showDashboard = () => {
   loginPanel.hidden = true;
   dashboard.hidden = false;
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   $("[data-user-summary]").textContent = `${state.profile.email} · ${state.profile.role}`;
 };
 
