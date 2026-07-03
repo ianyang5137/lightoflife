@@ -132,6 +132,21 @@ select:focus {
   box-shadow: 0 0 0 3px rgba(37, 95, 82, 0.12);
 }
 
+input:disabled,
+textarea:disabled,
+select:disabled {
+  color: #7a8581;
+  background: #f2f0ea;
+  cursor: not-allowed;
+}
+
+.field-note {
+  margin: -4px 0 10px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 .primary-button,
 .secondary-button,
 .danger-button {

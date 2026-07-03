@@ -62,7 +62,23 @@ const canAccess = (sectionKey) => {
   return state.permissions.includes(sectionKey);
 };
 
+const isAdmin = () => state.profile?.role === "admin";
+
 const sectionLabel = (key) => sections.find((section) => section.key === key)?.label || key;
+
+const titleField = (name, label, value) => {
+  const disabled = isAdmin() ? "" : " disabled";
+  return `<label>${label}<input name="${name}" value="${escapeHtml(value)}"${disabled} /></label>`;
+};
+
+const lockedTitleNote = () => isAdmin()
+  ? ""
+  : `<p class="field-note full">此區塊的一級中英文標題只有管理員可以修改。</p>`;
+
+const titlePayload = (source, form) => ({
+  title_zh: isAdmin() ? form.get("title_zh") : source.title_zh,
+  title_en: isAdmin() ? form.get("title_en") : source.title_en
+});
 
 const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
@@ -242,8 +258,9 @@ const renderGatherings = async (token) => {
       <section class="panel">
         <h2>區塊標題</h2>
         <div class="form-grid">
-          <label>中文標題<input name="title_zh" value="${escapeHtml(section.title_zh)}" /></label>
-          <label>英文標題<input name="title_en" value="${escapeHtml(section.title_en)}" /></label>
+          ${titleField("title_zh", "中文標題", section.title_zh)}
+          ${titleField("title_en", "英文標題", section.title_en)}
+          ${lockedTitleNote()}
         </div>
       </section>
       ${items.map((item, index) => `
@@ -287,8 +304,7 @@ const renderGatherings = async (token) => {
       };
     }));
     await saveSiteSection("gatherings", {
-      title_zh: form.get("title_zh"),
-      title_en: form.get("title_en"),
+      ...titlePayload(section, form),
       content: { ...section.content, items: updatedItems }
     });
   }, "聚會時間已保存"));
@@ -302,8 +318,9 @@ const renderMessages = async (token) => {
     <form class="panel" data-messages-form>
       <h2>主日信息</h2>
       <div class="form-grid">
-        <label>中文標題<input name="title_zh" value="${escapeHtml(section.title_zh)}" /></label>
-        <label>英文標題<input name="title_en" value="${escapeHtml(section.title_en)}" /></label>
+        ${titleField("title_zh", "中文標題", section.title_zh)}
+        ${titleField("title_en", "英文標題", section.title_en)}
+        ${lockedTitleNote()}
         <label class="full">中文簡介<textarea name="description_zh">${escapeHtml(content.description_zh)}</textarea></label>
         <label class="full">英文簡介<textarea name="description_en">${escapeHtml(content.description_en)}</textarea></label>
         <label>YouTube 頻道連結<input name="youtube_url" value="${escapeHtml(content.youtube_url)}" /></label>
@@ -316,8 +333,7 @@ const renderMessages = async (token) => {
   `;
   $("[data-messages-form]").addEventListener("submit", (event) => runSave(event, async (form) => {
     await saveSiteSection("messages", {
-      title_zh: form.get("title_zh"),
-      title_en: form.get("title_en"),
+      ...titlePayload(section, form),
       content: {
         ...content,
         description_zh: form.get("description_zh"),
@@ -339,8 +355,9 @@ const renderBibleReading = async (token) => {
     <form class="panel" data-bible-form>
       <h2>線上讀經</h2>
       <div class="form-grid">
-        <label>中文標題<input name="title_zh" value="${escapeHtml(section.title_zh)}" /></label>
-        <label>英文標題<input name="title_en" value="${escapeHtml(section.title_en)}" /></label>
+        ${titleField("title_zh", "中文標題", section.title_zh)}
+        ${titleField("title_en", "英文標題", section.title_en)}
+        ${lockedTitleNote()}
         <label>中文時間<input name="time_zh" value="${escapeHtml(content.time_zh)}" /></label>
         <label>英文時間<input name="time_en" value="${escapeHtml(content.time_en)}" /></label>
         <label>Zoom 號碼<input name="zoom_id" value="${escapeHtml(content.zoom_id)}" /></label>
@@ -355,8 +372,7 @@ const renderBibleReading = async (token) => {
   `;
   $("[data-bible-form]").addEventListener("submit", (event) => runSave(event, async (form) => {
     await saveSiteSection("bible_reading", {
-      title_zh: form.get("title_zh"),
-      title_en: form.get("title_en"),
+      ...titlePayload(section, form),
       content: {
         ...content,
         time_zh: form.get("time_zh"),
@@ -393,8 +409,9 @@ const renderRoster = async (token) => {
       <section class="panel">
         <h2>日期與標題</h2>
         <div class="form-grid">
-          <label>中文標題<input name="title_zh" value="${escapeHtml(roster.title_zh)}" /></label>
-          <label>英文標題<input name="title_en" value="${escapeHtml(roster.title_en)}" /></label>
+          ${titleField("title_zh", "中文標題", roster.title_zh)}
+          ${titleField("title_en", "英文標題", roster.title_en)}
+          ${lockedTitleNote()}
           <label>本週日期標籤<input name="current_week_label" value="${escapeHtml(roster.current_week_label)}" /></label>
           <label>下週日期標籤<input name="next_week_label" value="${escapeHtml(roster.next_week_label)}" /></label>
         </div>
@@ -423,8 +440,7 @@ const renderRoster = async (token) => {
     await runQuery(() => client
       .from("service_rosters")
       .update({
-        title_zh: form.get("title_zh"),
-        title_en: form.get("title_en"),
+        ...titlePayload(roster, form),
         current_week_label: form.get("current_week_label"),
         next_week_label: form.get("next_week_label"),
         rows,
