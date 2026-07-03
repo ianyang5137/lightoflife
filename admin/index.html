@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>網站後台｜生命之光靈糧堂</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Noto+Sans+TC:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/admin/admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <main class="admin-shell">
+    <section class="login-panel" data-login-panel>
+      <div class="login-card">
+        <img src="/assets/images/logo-transparent.png" alt="生命之光靈糧堂" />
+        <p class="eyebrow">Website Admin</p>
+        <h1>生命之光靈糧堂後台</h1>
+        <form data-login-form>
+          <label>
+            Email
+            <input type="email" name="email" autocomplete="email" required />
+          </label>
+          <label>
+            密碼
+            <input type="password" name="password" autocomplete="current-password" required />
+          </label>
+          <button class="primary-button" type="submit">登入</button>
+          <p class="form-message" data-login-message></p>
+        </form>
+      </div>
+    </section>
+
+    <section class="dashboard" data-dashboard hidden>
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <img src="/assets/images/site-logo-512.png" alt="" />
+          <div>
+            <strong>網站後台</strong>
+            <span>Light of Life</span>
+          </div>
+        </div>
+        <nav class="admin-nav" data-admin-nav></nav>
+        <div class="sidebar-footer">
+          <p data-user-summary></p>
+          <button type="button" data-sign-out>退出登入</button>
+        </div>
+      </aside>
+
+      <section class="workspace">
+        <header class="workspace-header">
+          <div>
+            <p class="eyebrow" data-workspace-kicker>Content</p>
+            <h1 data-workspace-title>網站內容</h1>
+          </div>
+          <p class="save-status" data-save-status></p>
+        </header>
+        <div class="workspace-body" data-workspace-body></div>
+      </section>
+    </section>
+  </main>
+
+  <script src="/assets/js/cms-config.js"></script>
+  <script src="/admin/admin.js"></script>
+</body>
+</html>
