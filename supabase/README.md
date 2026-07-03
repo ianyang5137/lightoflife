@@ -20,6 +20,16 @@ Permission model:
 - `editor`: can only edit sections assigned in `section_permissions`.
 - `viewer`: can sign in and view their account, but cannot edit content unless a section is assigned.
 
+User creation:
+
+- Create users in Supabase Dashboard → Authentication → Users.
+- After the user signs in or appears in `profiles`, use `/admin/` → 用户與權限 to set their role and editable sections.
+
+Image uploads:
+
+- The admin UI uploads local images to the public `site-media` Storage bucket.
+- Re-run `section-permissions.sql` after enabling uploads so admins and content editors can write to Storage under the site media bucket.
+
 The first admin UI intentionally exposes only basic fields: titles, text, times,
 Zoom information, video ID, serving roster names, and prayer item text. Advanced
 fields such as status, sorting, and visibility remain hidden from non-admin users.

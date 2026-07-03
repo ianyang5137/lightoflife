@@ -194,51 +194,53 @@ for delete
 to authenticated
 using (public.is_admin());
 
--- Restrict media writes to admins for now because the first admin UI only edits
--- text fields and existing image URLs. This keeps non-admin controls simple.
 drop policy if exists "media_assets_editor_insert" on public.media_assets;
 drop policy if exists "media_assets_editor_update" on public.media_assets;
 drop policy if exists "media_assets_admin_insert" on public.media_assets;
 drop policy if exists "media_assets_admin_update" on public.media_assets;
+drop policy if exists "media_assets_content_insert" on public.media_assets;
+drop policy if exists "media_assets_content_update" on public.media_assets;
 
-create policy "media_assets_admin_insert"
+create policy "media_assets_content_insert"
 on public.media_assets
 for insert
 to authenticated
-with check (public.is_admin());
+with check (public.can_edit_content());
 
-create policy "media_assets_admin_update"
+create policy "media_assets_content_update"
 on public.media_assets
 for update
 to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+using (public.can_edit_content())
+with check (public.can_edit_content());
 
 drop policy if exists "site_media_editor_insert" on storage.objects;
 drop policy if exists "site_media_editor_update" on storage.objects;
 drop policy if exists "site_media_admin_insert" on storage.objects;
 drop policy if exists "site_media_admin_update" on storage.objects;
+drop policy if exists "site_media_content_insert" on storage.objects;
+drop policy if exists "site_media_content_update" on storage.objects;
 
-create policy "site_media_admin_insert"
+create policy "site_media_content_insert"
 on storage.objects
 for insert
 to authenticated
 with check (
   bucket_id = 'site-media'
-  and public.is_admin()
+  and public.can_edit_content()
 );
 
-create policy "site_media_admin_update"
+create policy "site_media_content_update"
 on storage.objects
 for update
 to authenticated
 using (
   bucket_id = 'site-media'
-  and public.is_admin()
+  and public.can_edit_content()
 )
 with check (
   bucket_id = 'site-media'
-  and public.is_admin()
+  and public.can_edit_content()
 );
 
 -- Give current admins all editable sections so they can manage the first setup.

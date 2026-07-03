@@ -108,6 +108,17 @@ select {
   outline: none;
 }
 
+input[type="file"] {
+  padding: 10px;
+  background: #fbfaf6;
+}
+
+.upload-field span {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
 textarea {
   min-height: 110px;
   resize: vertical;

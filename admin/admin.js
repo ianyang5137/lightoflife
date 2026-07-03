@@ -1,5 +1,12 @@
 const config = window.LOL_CMS_CONFIG;
-const client = window.supabase?.createClient(config.supabaseUrl, config.supabaseKey);
+const client = window.supabase?.createClient(config.supabaseUrl, config.supabaseKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    storage: window.localStorage
+  }
+});
 const supabaseUsersUrl = "https://supabase.com/dashboard/project/odthwmpyhaqagdphcooi/auth/users";
 
 const sections = [
@@ -17,7 +24,8 @@ const state = {
   session: null,
   profile: null,
   permissions: [],
-  currentSection: null
+  currentSection: null,
+  renderToken: 0
 };
 
 const loginPanel = $("[data-login-panel]");
@@ -56,10 +64,55 @@ const canAccess = (sectionKey) => {
 
 const sectionLabel = (key) => sections.find((section) => section.key === key)?.label || key;
 
-const selectOne = async (table, query) => {
-  const { data, error } = await query.single();
-  if (error) throw error;
+const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+const withTimeout = (promise, label = "請求", ms = 12000) => Promise.race([
+  promise,
+  new Promise((_, reject) => {
+    window.setTimeout(() => reject(new Error(`${label} 超時，請稍後再試`)), ms);
+  })
+]);
+
+const runQuery = async (queryFactory, label = "資料讀取") => {
+  let lastError = null;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const result = await withTimeout(queryFactory(), label);
+      if (result.error) throw result.error;
+      return result.data;
+    } catch (error) {
+      lastError = error;
+      if (attempt === 0) await wait(500);
+    }
+  }
+  throw lastError;
+};
+
+const selectOne = async (label, queryFactory) => {
+  const data = await runQuery(() => queryFactory().single(), label);
   return data;
+};
+
+const isCurrentRender = (token) => token === state.renderToken;
+
+const renderTimed = (work, label) => withTimeout(work(), label, 14000);
+
+const uploadImage = async (file, folder = "general") => {
+  if (!file || file.size === 0) return "";
+  const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const safeExtension = extension.replace(/[^a-z0-9]/g, "") || "jpg";
+  const fileName = `${folder}/${Date.now()}-${crypto.randomUUID()}.${safeExtension}`;
+  setStatus("正在上傳圖片...", false, false);
+  const { error } = await client.storage
+    .from("site-media")
+    .upload(fileName, file, {
+      cacheControl: "31536000",
+      upsert: false
+    });
+  if (error) throw error;
+  const { data } = client.storage.from("site-media").getPublicUrl(fileName);
+  setStatus("圖片已上傳，正在保存內容...", false, false);
+  return data.publicUrl;
 };
 
 const loadProfile = async () => {
@@ -67,7 +120,7 @@ const loadProfile = async () => {
   if (userError) throw userError;
   const user = userData.user;
   if (!user) return null;
-  return selectOne("profiles", client
+  return selectOne("讀取用户資料", () => client
     .from("profiles")
     .select("id,email,display_name,role,is_active")
     .eq("id", user.id)
@@ -83,14 +136,13 @@ const loadPermissions = async () => {
     state.permissions = [];
     return;
   }
-  const { data, error } = await client
+  const data = await runQuery(() => client
     .from("section_permissions")
     .select("section_key")
     .eq("user_id", state.profile.id)
-    .eq("can_edit", true);
-  if (error) {
+    .eq("can_edit", true), "讀取板塊權限");
+  if (!data) {
     body.innerHTML = `<div class="empty-state">還沒有安裝板塊權限表。請先在 Supabase SQL Editor 執行 <code>supabase/section-permissions.sql</code>。</div>`;
-    throw error;
   }
   state.permissions = data.map((item) => item.section_key);
 };
@@ -142,7 +194,7 @@ const setHeading = (sectionKey) => {
   title.textContent = section?.label || "網站內容";
 };
 
-const loadSiteSection = async (sectionKey) => selectOne("site_sections", client
+const loadSiteSection = async (sectionKey) => selectOne(`讀取 ${sectionLabel(sectionKey)}`, () => client
   .from("site_sections")
   .select("*")
   .eq("section_key", sectionKey)
@@ -150,11 +202,10 @@ const loadSiteSection = async (sectionKey) => selectOne("site_sections", client
 
 const saveSiteSection = async (sectionKey, payload) => {
   setStatus("正在保存...", false, false);
-  const { error } = await client
+  await runQuery(() => client
     .from("site_sections")
     .update({ ...payload, updated_by: state.profile.id })
-    .eq("section_key", sectionKey);
-  if (error) throw error;
+    .eq("section_key", sectionKey), `保存 ${sectionLabel(sectionKey)}`);
   setStatus("已保存");
 };
 
@@ -182,8 +233,9 @@ const runSave = async (event, action, successMessage = "已保存") => {
   }
 };
 
-const renderGatherings = async () => {
+const renderGatherings = async (token) => {
   const section = await loadSiteSection("gatherings");
+  if (!isCurrentRender(token)) return;
   const items = section.content?.items || [];
   body.innerHTML = `
     <form class="stack" data-gatherings-form>
@@ -205,6 +257,11 @@ const renderGatherings = async () => {
             <label class="full">中文簡介<textarea name="item_${index}_description_zh">${escapeHtml(item.description_zh)}</textarea></label>
             <label class="full">英文簡介<textarea name="item_${index}_description_en">${escapeHtml(item.description_en)}</textarea></label>
             <label class="full">圖片路徑<input name="item_${index}_image" value="${escapeHtml(item.image)}" /></label>
+            <label class="full upload-field">
+              從本機上傳圖片
+              <input type="file" name="item_${index}_image_file" accept="image/*" />
+              <span>可從電腦或手機選擇圖片；保存後會上傳到 Supabase Storage 並自動替換圖片路徑。</span>
+            </label>
           </div>
         </section>
       `).join("")}
@@ -213,15 +270,21 @@ const renderGatherings = async () => {
   `;
 
   $("[data-gatherings-form]").addEventListener("submit", (event) => runSave(event, async (form) => {
-    const updatedItems = items.map((item, index) => ({
-      ...item,
-      title_zh: form.get(`item_${index}_title_zh`),
-      title_en: form.get(`item_${index}_title_en`),
-      time_zh: form.get(`item_${index}_time_zh`),
-      time_en: form.get(`item_${index}_time_en`),
-      description_zh: form.get(`item_${index}_description_zh`),
-      description_en: form.get(`item_${index}_description_en`),
-      image: form.get(`item_${index}_image`)
+    const updatedItems = await Promise.all(items.map(async (item, index) => {
+      const imageFile = form.get(`item_${index}_image_file`);
+      const uploadedUrl = imageFile instanceof File && imageFile.size > 0
+        ? await uploadImage(imageFile, `gatherings/${item.key || `item-${index + 1}`}`)
+        : "";
+      return {
+        ...item,
+        title_zh: form.get(`item_${index}_title_zh`),
+        title_en: form.get(`item_${index}_title_en`),
+        time_zh: form.get(`item_${index}_time_zh`),
+        time_en: form.get(`item_${index}_time_en`),
+        description_zh: form.get(`item_${index}_description_zh`),
+        description_en: form.get(`item_${index}_description_en`),
+        image: uploadedUrl || form.get(`item_${index}_image`)
+      };
     }));
     await saveSiteSection("gatherings", {
       title_zh: form.get("title_zh"),
@@ -231,8 +294,9 @@ const renderGatherings = async () => {
   }, "聚會時間已保存"));
 };
 
-const renderMessages = async () => {
+const renderMessages = async (token) => {
   const section = await loadSiteSection("messages");
+  if (!isCurrentRender(token)) return;
   const content = section.content || {};
   body.innerHTML = `
     <form class="panel" data-messages-form>
@@ -267,8 +331,9 @@ const renderMessages = async () => {
   }, "主日信息已保存"));
 };
 
-const renderBibleReading = async () => {
+const renderBibleReading = async (token) => {
   const section = await loadSiteSection("bible_reading");
+  if (!isCurrentRender(token)) return;
   const content = section.content || {};
   body.innerHTML = `
     <form class="panel" data-bible-form>
@@ -308,17 +373,17 @@ const renderBibleReading = async () => {
 };
 
 const loadLatestRoster = async () => {
-  const { data, error } = await client
+  const data = await runQuery(() => client
     .from("service_rosters")
     .select("*")
     .order("week_start", { ascending: false })
-    .limit(1);
-  if (error) throw error;
+    .limit(1), "讀取服事表");
   return data[0];
 };
 
-const renderRoster = async () => {
+const renderRoster = async (token) => {
   const roster = await loadLatestRoster();
+  if (!isCurrentRender(token)) return;
   if (!roster) {
     body.innerHTML = `<div class="empty-state">還沒有服事表資料，請先在資料庫建立第一份服事表。</div>`;
     return;
@@ -355,7 +420,7 @@ const renderRoster = async () => {
       current: form.get(`row_${index}_current`),
       next: form.get(`row_${index}_next`)
     }));
-    const { error } = await client
+    await runQuery(() => client
       .from("service_rosters")
       .update({
         title_zh: form.get("title_zh"),
@@ -365,24 +430,23 @@ const renderRoster = async () => {
         rows,
         updated_by: state.profile.id
       })
-      .eq("id", roster.id);
-    if (error) throw error;
+      .eq("id", roster.id), "保存服事表");
   }, "服事表已保存"));
 };
 
 const loadPrayerItems = async () => {
-  const { data, error } = await client
+  const data = await runQuery(() => client
     .from("prayer_items")
     .select("*")
     .order("is_pinned", { ascending: false })
     .order("sort_order", { ascending: true })
-    .order("created_at", { ascending: false });
-  if (error) throw error;
+    .order("created_at", { ascending: false }), "讀取代禱事項");
   return data;
 };
 
-const renderPrayer = async () => {
+const renderPrayer = async (token) => {
   const items = await loadPrayerItems();
+  if (!isCurrentRender(token)) return;
   body.innerHTML = `
     <div class="stack">
       ${items.map((item, index) => `
@@ -411,7 +475,7 @@ const renderPrayer = async () => {
   `;
   $$("[data-prayer-form]").forEach((formElement) => {
     formElement.addEventListener("submit", (event) => runSave(event, async (form, currentForm) => {
-      const { error } = await client
+      await runQuery(() => client
         .from("prayer_items")
         .update({
           title_zh: form.get("title_zh"),
@@ -420,12 +484,11 @@ const renderPrayer = async () => {
           body_en: form.get("body_en"),
           updated_by: state.profile.id
         })
-        .eq("id", currentForm.dataset.id);
-      if (error) throw error;
+        .eq("id", currentForm.dataset.id), "保存代禱事項");
     }, "代禱事項已保存"));
   });
   $("[data-new-prayer-form]").addEventListener("submit", (event) => runSave(event, async (form) => {
-    const { error } = await client
+    await runQuery(() => client
       .from("prayer_items")
       .insert({
         title_zh: form.get("title_zh"),
@@ -438,20 +501,18 @@ const renderPrayer = async () => {
         published_at: new Date().toISOString(),
         created_by: state.profile.id,
         updated_by: state.profile.id
-      });
-    if (error) throw error;
-    renderPrayer();
+      }), "新增代禱事項");
+    await renderPrayer(state.renderToken);
   }, "代禱事項已新增"));
 };
 
-const renderUsers = async () => {
+const renderUsers = async (token) => {
   if (state.profile.role !== "admin") return;
-  const [{ data: profiles, error: profileError }, { data: permissions, error: permissionError }] = await Promise.all([
-    client.from("profiles").select("id,email,display_name,role,is_active").order("email"),
-    client.from("section_permissions").select("user_id,section_key,can_edit")
+  const [profiles, permissions] = await Promise.all([
+    runQuery(() => client.from("profiles").select("id,email,display_name,role,is_active").order("email"), "讀取用户"),
+    runQuery(() => client.from("section_permissions").select("user_id,section_key,can_edit"), "讀取用户權限")
   ]);
-  if (profileError) throw profileError;
-  if (permissionError) throw permissionError;
+  if (!isCurrentRender(token)) return;
   body.innerHTML = `
     <div class="stack">
       <div class="empty-state">
@@ -493,74 +554,82 @@ const renderUsers = async () => {
     formElement.addEventListener("submit", (event) => runSave(event, async (form, currentForm) => {
       const userId = currentForm.dataset.id;
       const allowedSections = form.getAll("section");
-      const { error: profileUpdateError } = await client
+      await runQuery(() => client
         .from("profiles")
         .update({
           display_name: form.get("display_name"),
           role: form.get("role")
         })
-        .eq("id", userId);
-      if (profileUpdateError) throw profileUpdateError;
-      const { error: deleteError } = await client
+        .eq("id", userId), "保存用户角色");
+      await runQuery(() => client
         .from("section_permissions")
         .delete()
-        .eq("user_id", userId);
-      if (deleteError) throw deleteError;
+        .eq("user_id", userId), "更新用户板塊權限");
       if (allowedSections.length) {
-        const { error: insertError } = await client
+        await runQuery(() => client
           .from("section_permissions")
           .insert(allowedSections.map((sectionKey) => ({
             user_id: userId,
             section_key: sectionKey,
             can_edit: true,
             assigned_by: state.profile.id
-          })));
-        if (insertError) throw insertError;
+          }))), "寫入用户板塊權限");
       }
     }, "用户權限已保存"));
   });
 };
 
 const renderSection = async (sectionKey) => {
+  const token = state.renderToken + 1;
+  state.renderToken = token;
   try {
     setStatus("");
     state.currentSection = sectionKey;
     setHeading(sectionKey);
     body.innerHTML = `<div class="empty-state">正在載入 ${sectionLabel(sectionKey)}...</div>`;
-    if (sectionKey === "gatherings") await renderGatherings();
-    if (sectionKey === "messages") await renderMessages();
-    if (sectionKey === "bible_reading") await renderBibleReading();
-    if (sectionKey === "service_rosters") await renderRoster();
-    if (sectionKey === "prayer_items") await renderPrayer();
-    if (sectionKey === "users") await renderUsers();
+    if (sectionKey === "gatherings") await renderTimed(() => renderGatherings(token), "載入聚會時間");
+    if (sectionKey === "messages") await renderTimed(() => renderMessages(token), "載入主日信息");
+    if (sectionKey === "bible_reading") await renderTimed(() => renderBibleReading(token), "載入線上讀經");
+    if (sectionKey === "service_rosters") await renderTimed(() => renderRoster(token), "載入服事表");
+    if (sectionKey === "prayer_items") await renderTimed(() => renderPrayer(token), "載入代禱事項");
+    if (sectionKey === "users") await renderTimed(() => renderUsers(token), "載入用户與權限");
   } catch (error) {
     console.error(error);
+    if (!isCurrentRender(token)) return;
+    state.renderToken += 1;
     body.innerHTML = `<div class="empty-state">載入或保存時出錯：${escapeHtml(error.message)}</div>`;
     setStatus(error.message, true);
   }
 };
 
 const initialize = async () => {
-  if (!client) {
-    $("[data-login-message]").textContent = "Supabase 設定未載入。";
-    return;
-  }
-  const { data } = await client.auth.getSession();
-  state.session = data.session;
-  if (!state.session) {
+  try {
+    if (!client) {
+      showLogin();
+      $("[data-login-message]").textContent = "Supabase 設定未載入。";
+      return;
+    }
+    const { data } = await withTimeout(client.auth.getSession(), "檢查登入狀態", 10000);
+    state.session = data.session;
+    if (!state.session) {
+      showLogin();
+      return;
+    }
+    state.profile = await loadProfile();
+    if (!state.profile?.is_active) {
+      await client.auth.signOut();
+      showLogin();
+      $("[data-login-message]").textContent = "帳號未啟用，請聯絡管理員。";
+      return;
+    }
+    await loadPermissions();
+    showDashboard();
+    renderNav();
+  } catch (error) {
+    console.error(error);
     showLogin();
-    return;
+    $("[data-login-message]").textContent = `後台載入失敗：${error.message}`;
   }
-  state.profile = await loadProfile();
-  if (!state.profile?.is_active) {
-    await client.auth.signOut();
-    showLogin();
-    $("[data-login-message]").textContent = "帳號未啟用，請聯絡管理員。";
-    return;
-  }
-  await loadPermissions();
-  showDashboard();
-  renderNav();
 };
 
 $("[data-login-form]").addEventListener("submit", async (event) => {
