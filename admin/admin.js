@@ -175,6 +175,20 @@ const showLogin = () => {
   loginPanel.hidden = false;
 };
 
+const resetLocalSession = () => {
+  state.session = null;
+  state.profile = null;
+  state.permissions = [];
+  state.currentSection = null;
+  state.renderToken += 1;
+  Object.keys(window.localStorage)
+    .filter((key) => key.startsWith("sb-") && key.includes("auth-token"))
+    .forEach((key) => window.localStorage.removeItem(key));
+  nav.innerHTML = "";
+  body.innerHTML = "";
+  $("[data-user-summary]").textContent = "";
+};
+
 const renderNav = () => {
   const allowed = sections.filter((section) => canAccess(section.key));
   const userButton = state.profile.role === "admin"
@@ -665,9 +679,28 @@ $("[data-login-form]").addEventListener("submit", async (event) => {
   initialize();
 });
 
-$("[data-sign-out]").addEventListener("click", async () => {
-  await client.auth.signOut();
-  location.reload();
-});
+const handleSignOut = async (event) => {
+  const button = event.currentTarget;
+  button.disabled = true;
+  button.textContent = "退出中...";
+  setStatus("正在退出登入...", false, false);
+
+  resetLocalSession();
+  showLogin();
+  $("[data-login-message]").textContent = "已退出登入。";
+
+  try {
+    await withTimeout(client.auth.signOut(), "退出登入", 5000);
+  } catch (error) {
+    console.warn(error);
+    setStatus("已回到登入頁，遠端登出稍後會自動同步。", false);
+  } finally {
+    button.disabled = false;
+    button.textContent = "退出登入";
+    setStatus("");
+  }
+};
+
+$("[data-sign-out]").addEventListener("click", handleSignOut);
 
 initialize();
