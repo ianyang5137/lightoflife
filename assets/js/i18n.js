@@ -36,7 +36,7 @@ const translations = {
   "zh-Hant": {
     "top.event.name": "2026 正道教牧論壇",
     "top.event.theme": "面對死亡",
-    "top.event.detail": "6月22日 13:00–20:30｜Zoom 線上參加",
+    "top.event.detail": "台中場｜2026/08/22（六）09:00–16:30",
     "top.event.cta": "立即報名",
     "brand.title": "生命之光靈糧堂",
     "brand.subtitle": "Light of Life Church Auckland",
@@ -122,7 +122,7 @@ const translations = {
   en: {
     "top.event.name": "2026 CMI Pastoral Forum",
     "top.event.theme": "Facing Death",
-    "top.event.detail": "22 Jun 13:00–20:30 NZT | Online via Zoom",
+    "top.event.detail": "Taichung Session | 22 Aug 2026, 09:00–16:30",
     "top.event.cta": "Register",
     "brand.title": "Light of Life Church",
     "brand.subtitle": "Bread of Life Christian Church Auckland",
