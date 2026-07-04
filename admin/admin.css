@@ -88,6 +88,53 @@ h3 {
   font-size: 1.85rem;
 }
 
+.auth-switch {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.auth-switch button {
+  border: 0;
+  background: transparent;
+  color: var(--green);
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.register-sections {
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 18px;
+}
+
+.request-summary {
+  display: grid;
+  gap: 14px;
+}
+
+.request-status {
+  display: inline-flex;
+  width: fit-content;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(184, 138, 61, 0.14);
+  color: var(--green-deep);
+  font-weight: 800;
+}
+
+.request-status.approved {
+  background: rgba(37, 95, 82, 0.14);
+  color: var(--green);
+}
+
+.request-status.rejected {
+  background: rgba(163, 61, 53, 0.12);
+  color: var(--danger);
+}
+
 label {
   display: grid;
   gap: 8px;
@@ -408,6 +455,23 @@ select:disabled {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 8px;
+}
+
+.request-card {
+  display: grid;
+  gap: 14px;
+}
+
+.request-card header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.request-card small {
+  color: var(--muted);
+  font-weight: 700;
 }
 
 .checkbox-label {

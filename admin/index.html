@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Noto+Sans+TC:wght@400;500;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/admin/admin.css?v=20260704-5" />
+  <link rel="stylesheet" href="/admin/admin.css?v=20260704-6" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -16,8 +16,8 @@
     <section class="login-panel" data-login-panel hidden>
       <div class="login-card">
         <img src="/assets/images/logo-transparent.png" alt="生命之光靈糧堂" />
-        <p class="eyebrow">Website Admin</p>
-        <h1>生命之光靈糧堂後台</h1>
+        <p class="eyebrow" data-auth-kicker>Website Admin</p>
+        <h1 data-auth-title>生命之光靈糧堂後台</h1>
         <form data-login-form>
           <label>
             Email
@@ -30,6 +30,32 @@
           <button class="primary-button" type="submit">登入</button>
           <p class="form-message" data-login-message></p>
         </form>
+        <form data-register-form hidden>
+          <label>
+            姓名
+            <input name="display_name" autocomplete="name" required />
+          </label>
+          <label>
+            Email
+            <input type="email" name="email" autocomplete="email" required />
+          </label>
+          <label>
+            密碼
+            <input type="password" name="password" autocomplete="new-password" minlength="8" required />
+          </label>
+          <label class="full">
+            申請說明
+            <textarea name="note" placeholder="例如：我負責服事表、代禱事項或主日信息更新。"></textarea>
+          </label>
+          <div class="register-sections" data-register-sections></div>
+          <button class="primary-button" type="submit">送出申請並驗證 Email</button>
+          <p class="form-message" data-register-message></p>
+        </form>
+        <div data-request-panel hidden></div>
+        <div class="auth-switch">
+          <button type="button" data-show-register>申請後台帳號</button>
+          <button type="button" data-show-login hidden>返回登入</button>
+        </div>
       </div>
     </section>
 
@@ -64,6 +90,6 @@
   </main>
 
   <script src="/assets/js/cms-config.js"></script>
-  <script src="/admin/admin.js?v=20260704-5"></script>
+  <script src="/admin/admin.js?v=20260704-6"></script>
 </body>
 </html>

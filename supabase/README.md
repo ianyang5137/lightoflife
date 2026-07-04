@@ -4,6 +4,7 @@ Run the SQL files in Supabase SQL Editor in this order:
 
 1. Run the initial schema SQL that creates `profiles`, `site_sections`, `service_rosters`, `prayer_items`, `media_assets`, and seed content.
 2. Run `section-permissions.sql`.
+3. Run `admin-access-requests.sql` if you want users to self-register with email verification and admin approval.
 
 After creating users in Supabase Authentication, set the first admin:
 
@@ -22,8 +23,10 @@ Permission model:
 
 User creation:
 
-- Create users in Supabase Dashboard → Authentication → Users.
-- After the user signs in or appears in `profiles`, use `/admin/` → 用户與權限 to set their role and editable sections.
+- Users can request an account from `/admin/` after Supabase Email confirmation is enabled.
+- New users must verify their email first, then submit an access request.
+- Admins review requests in `/admin/` → 帳號申請. Approving a request activates the user and writes `section_permissions`.
+- You can still create users manually in Supabase Dashboard → Authentication → Users, then manage role and sections in `/admin/` → 用户與權限.
 
 Image uploads:
 

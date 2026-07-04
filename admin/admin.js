@@ -21,6 +21,7 @@ const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
 const state = {
+  authUser: null,
   session: null,
   profile: null,
   permissions: [],
@@ -35,6 +36,11 @@ const body = $("[data-workspace-body]");
 const title = $("[data-workspace-title]");
 const kicker = $("[data-workspace-kicker]");
 const saveStatus = $("[data-save-status]");
+const authKicker = $("[data-auth-kicker]");
+const authTitle = $("[data-auth-title]");
+const loginForm = $("[data-login-form]");
+const registerForm = $("[data-register-form]");
+const requestPanel = $("[data-request-panel]");
 let statusTimer = null;
 
 const setStatus = (message, isError = false, autoClear = true) => {
@@ -66,6 +72,8 @@ const isAdmin = () => state.profile?.role === "admin";
 
 const sectionLabel = (key) => sections.find((section) => section.key === key)?.label || key;
 
+const authRedirectUrl = `${window.location.origin}/admin/`;
+
 const titleField = (name, label, value) => {
   const disabled = isAdmin() ? "" : " disabled";
   return `<label>${label}<input name="${name}" value="${escapeHtml(value)}"${disabled} /></label>`;
@@ -79,6 +87,10 @@ const titlePayload = (source, form) => ({
   title_zh: isAdmin() ? form.get("title_zh") : source.title_zh,
   title_en: isAdmin() ? form.get("title_en") : source.title_en
 });
+
+const formatSections = (sectionKeys = []) => sectionKeys
+  .map((key) => sectionLabel(key))
+  .join("、") || "未選擇";
 
 const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
@@ -109,6 +121,11 @@ const selectOne = async (label, queryFactory) => {
   return data;
 };
 
+const selectMaybeOne = async (label, queryFactory) => {
+  const data = await runQuery(() => queryFactory().maybeSingle(), label);
+  return data;
+};
+
 const isCurrentRender = (token) => token === state.renderToken;
 
 const renderTimed = (work, label) => withTimeout(work(), label, 14000);
@@ -135,12 +152,28 @@ const loadProfile = async () => {
   const { data: userData, error: userError } = await client.auth.getUser();
   if (userError) throw userError;
   const user = userData.user;
+  state.authUser = user;
   if (!user) return null;
-  return selectOne("讀取用户資料", () => client
+  const profile = await selectMaybeOne("讀取用户資料", () => client
     .from("profiles")
     .select("id,email,display_name,role,is_active")
     .eq("id", user.id)
   );
+  if (profile) return profile;
+
+  const displayName = user.user_metadata?.display_name || user.email?.split("@")[0] || "";
+  const inserted = await selectOne("建立用户資料", () => client
+    .from("profiles")
+    .insert({
+      id: user.id,
+      email: user.email,
+      display_name: displayName,
+      role: "viewer",
+      is_active: false
+    })
+    .select("id,email,display_name,role,is_active")
+  );
+  return inserted;
 };
 
 const loadPermissions = async () => {
@@ -173,6 +206,136 @@ const showDashboard = () => {
 const showLogin = () => {
   dashboard.hidden = true;
   loginPanel.hidden = false;
+  setAuthMode("login");
+};
+
+const renderRegisterSections = () => {
+  const target = $("[data-register-sections]");
+  if (!target) return;
+  target.innerHTML = `
+    <p class="field-note">希望申請編輯的板塊</p>
+    ${sections.map((section) => `
+      <label class="checkbox-label">
+        <input type="checkbox" name="section" value="${section.key}" />
+        ${section.label}
+      </label>
+    `).join("")}
+  `;
+};
+
+const setAuthMode = (mode) => {
+  authKicker.textContent = mode === "register" ? "Account Request" : "Website Admin";
+  authTitle.textContent = mode === "register" ? "申請後台帳號" : "生命之光靈糧堂後台";
+  loginForm.hidden = mode !== "login";
+  registerForm.hidden = mode !== "register";
+  requestPanel.hidden = true;
+  $("[data-show-register]").hidden = mode !== "login";
+  $("[data-show-login]").hidden = mode === "login";
+  if (mode === "register") renderRegisterSections();
+};
+
+const requestStatusLabel = (status) => ({
+  pending: "等待審核",
+  approved: "已批准",
+  rejected: "已拒絕"
+}[status] || status);
+
+const saveAccessRequest = async (form) => {
+  const requestedSections = form.getAll("section");
+  const displayName = form.get("display_name") || state.profile?.display_name || "";
+  const note = form.get("note") || "";
+  await runQuery(() => client
+    .from("profiles")
+    .update({ display_name: displayName })
+    .eq("id", state.profile.id), "更新申請人資料");
+  await runQuery(() => client
+    .from("admin_access_requests")
+    .upsert({
+      user_id: state.profile.id,
+      email: state.profile.email,
+      display_name: displayName,
+      requested_sections: requestedSections,
+      note,
+      status: "pending",
+      reviewed_by: null,
+      reviewed_at: null,
+      review_note: null
+    }, { onConflict: "user_id" }), "送出帳號申請");
+};
+
+const loadOwnAccessRequest = async () => selectMaybeOne("讀取帳號申請", () => client
+  .from("admin_access_requests")
+  .select("*")
+  .eq("user_id", state.profile.id)
+);
+
+const renderRequestGate = async () => {
+  dashboard.hidden = true;
+  loginPanel.hidden = false;
+  loginForm.hidden = true;
+  registerForm.hidden = true;
+  requestPanel.hidden = false;
+  $("[data-show-register]").hidden = true;
+  $("[data-show-login]").hidden = false;
+  authKicker.textContent = "Account Review";
+  authTitle.textContent = "帳號審核";
+
+  const request = await loadOwnAccessRequest();
+  const metadata = state.authUser?.user_metadata || {};
+  const defaultSections = request?.requested_sections || metadata.requested_sections || [];
+  const defaultName = request?.display_name || state.profile?.display_name || metadata.display_name || "";
+  const defaultNote = request?.note || metadata.request_note || "";
+  if (request?.status === "pending" || request?.status === "approved") {
+    requestPanel.innerHTML = `
+      <div class="request-summary">
+        <span class="request-status ${escapeHtml(request.status)}">${requestStatusLabel(request.status)}</span>
+        <p>你的 Email 已驗證，後台權限正在等待管理員審核。</p>
+        <p><strong>申請板塊：</strong>${escapeHtml(formatSections(request.requested_sections))}</p>
+        ${request.note ? `<p><strong>申請說明：</strong>${escapeHtml(request.note)}</p>` : ""}
+        <button class="secondary-button" type="button" data-local-sign-out>退出登入</button>
+      </div>
+    `;
+    $("[data-local-sign-out]").addEventListener("click", async (event) => handleSignOut(event));
+    return;
+  }
+
+  requestPanel.innerHTML = `
+    <form data-access-request-form>
+      ${request?.status === "rejected" ? `<p class="form-message">上一次申請未通過，可以修改資料後重新送出。</p>` : ""}
+      <label>
+        姓名
+        <input name="display_name" value="${escapeHtml(defaultName)}" required />
+      </label>
+      <label class="full">
+        申請說明
+        <textarea name="note" placeholder="例如：我負責服事表、代禱事項或主日信息更新。">${escapeHtml(defaultNote)}</textarea>
+      </label>
+      <div class="register-sections">
+        <p class="field-note">希望申請編輯的板塊</p>
+        ${sections.map((section) => `
+          <label class="checkbox-label">
+            <input type="checkbox" name="section" value="${section.key}" ${defaultSections.includes(section.key) ? "checked" : ""} />
+            ${section.label}
+          </label>
+        `).join("")}
+      </div>
+      <button class="primary-button" type="submit">送出審核</button>
+      <p class="form-message" data-request-message></p>
+    </form>
+  `;
+  $("[data-access-request-form]").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const message = $("[data-request-message]");
+    message.textContent = "正在送出...";
+    try {
+      await saveAccessRequest(new FormData(event.currentTarget));
+      message.textContent = "申請已送出，請等待管理員審核。";
+      await renderRequestGate();
+    } catch (error) {
+      console.error(error);
+      message.textContent = `送出失敗：${error.message}`;
+    }
+  });
 };
 
 const resetLocalSession = () => {
@@ -192,7 +355,7 @@ const resetLocalSession = () => {
 const renderNav = () => {
   const allowed = sections.filter((section) => canAccess(section.key));
   const userButton = state.profile.role === "admin"
-    ? `<button type="button" data-section="users">用户與權限</button>`
+    ? `<button type="button" data-section="access_requests">帳號申請</button><button type="button" data-section="users">用户與權限</button>`
     : "";
   nav.innerHTML = [
     ...allowed.map((section) => `<button type="button" data-section="${section.key}">${section.label}</button>`),
@@ -217,6 +380,11 @@ const setHeading = (sectionKey) => {
   if (sectionKey === "users") {
     kicker.textContent = "Permissions";
     title.textContent = "用户與權限";
+    return;
+  }
+  if (sectionKey === "access_requests") {
+    kicker.textContent = "Access Requests";
+    title.textContent = "帳號申請";
     return;
   }
   const section = sections.find((item) => item.key === sectionKey);
@@ -609,6 +777,93 @@ const renderUsers = async (token) => {
   });
 };
 
+const loadAccessRequests = async () => runQuery(() => client
+  .from("admin_access_requests")
+  .select("*")
+  .order("status", { ascending: false })
+  .order("created_at", { ascending: false }), "讀取帳號申請");
+
+const renderAccessRequests = async (token) => {
+  if (state.profile.role !== "admin") return;
+  const requests = await loadAccessRequests();
+  if (!isCurrentRender(token)) return;
+  body.innerHTML = `
+    <div class="stack">
+      ${requests.length ? requests.map((request) => `
+        <form class="panel request-card" data-access-review-form data-id="${request.id}" data-user-id="${request.user_id}">
+          <header>
+            <div>
+              <h2>${escapeHtml(request.display_name || request.email)}</h2>
+              <small>${escapeHtml(request.email)} · ${new Date(request.created_at).toLocaleString("zh-Hant")}</small>
+            </div>
+            <span class="request-status ${escapeHtml(request.status)}">${requestStatusLabel(request.status)}</span>
+          </header>
+          <p><strong>申請板塊：</strong>${escapeHtml(formatSections(request.requested_sections))}</p>
+          ${request.note ? `<p><strong>申請說明：</strong>${escapeHtml(request.note)}</p>` : ""}
+          <div class="permission-grid">
+            ${sections.map((section) => `
+              <label class="checkbox-label">
+                <input type="checkbox" name="section" value="${section.key}" ${(request.requested_sections || []).includes(section.key) ? "checked" : ""} ${request.status !== "pending" ? "disabled" : ""} />
+                ${section.label}
+              </label>
+            `).join("")}
+          </div>
+          <label class="full">審核備註<textarea name="review_note" ${request.status !== "pending" ? "disabled" : ""}>${escapeHtml(request.review_note)}</textarea></label>
+          <div class="actions">
+            ${request.status === "pending" ? `
+              <button class="primary-button" type="submit" name="decision" value="approved">批准並開通</button>
+              <button class="danger-button" type="submit" name="decision" value="rejected">拒絕</button>
+            ` : ""}
+          </div>
+        </form>
+      `).join("") : `<div class="empty-state">目前沒有帳號申請。</div>`}
+    </div>
+  `;
+  $$("[data-access-review-form]").forEach((formElement) => {
+    formElement.addEventListener("submit", (event) => runSave(event, async (form, currentForm) => {
+      const decision = event.submitter?.value;
+      const requestId = currentForm.dataset.id;
+      const userId = currentForm.dataset.userId;
+      const allowedSections = form.getAll("section");
+      if (decision === "approved") {
+        await runQuery(() => client
+          .from("profiles")
+          .update({ role: "editor", is_active: true })
+          .eq("id", userId), "開通用户");
+        await runQuery(() => client
+          .from("section_permissions")
+          .delete()
+          .eq("user_id", userId), "更新用户板塊權限");
+        if (allowedSections.length) {
+          await runQuery(() => client
+            .from("section_permissions")
+            .insert(allowedSections.map((sectionKey) => ({
+              user_id: userId,
+              section_key: sectionKey,
+              can_edit: true,
+              assigned_by: state.profile.id
+            }))), "寫入用户板塊權限");
+        }
+      } else {
+        await runQuery(() => client
+          .from("profiles")
+          .update({ role: "viewer", is_active: false })
+          .eq("id", userId), "拒絕用户");
+      }
+      await runQuery(() => client
+        .from("admin_access_requests")
+        .update({
+          status: decision,
+          reviewed_by: state.profile.id,
+          reviewed_at: new Date().toISOString(),
+          review_note: form.get("review_note")
+        })
+        .eq("id", requestId), "更新審核狀態");
+      await renderAccessRequests(state.renderToken);
+    }, "帳號申請已處理"));
+  });
+};
+
 const renderSection = async (sectionKey) => {
   const token = state.renderToken + 1;
   state.renderToken = token;
@@ -622,6 +877,7 @@ const renderSection = async (sectionKey) => {
     if (sectionKey === "bible_reading") await renderTimed(() => renderBibleReading(token), "載入線上讀經");
     if (sectionKey === "service_rosters") await renderTimed(() => renderRoster(token), "載入服事表");
     if (sectionKey === "prayer_items") await renderTimed(() => renderPrayer(token), "載入代禱事項");
+    if (sectionKey === "access_requests") await renderTimed(() => renderAccessRequests(token), "載入帳號申請");
     if (sectionKey === "users") await renderTimed(() => renderUsers(token), "載入用户與權限");
   } catch (error) {
     console.error(error);
@@ -647,9 +903,7 @@ const initialize = async () => {
     }
     state.profile = await loadProfile();
     if (!state.profile?.is_active) {
-      await client.auth.signOut();
-      showLogin();
-      $("[data-login-message]").textContent = "帳號未啟用，請聯絡管理員。";
+      await renderRequestGate();
       return;
     }
     await loadPermissions();
@@ -662,7 +916,7 @@ const initialize = async () => {
   }
 };
 
-$("[data-login-form]").addEventListener("submit", async (event) => {
+loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const message = $("[data-login-message]");
   const form = new FormData(event.currentTarget);
@@ -678,6 +932,49 @@ $("[data-login-form]").addEventListener("submit", async (event) => {
   message.textContent = "";
   initialize();
 });
+
+registerForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const message = $("[data-register-message]");
+  const form = new FormData(event.currentTarget);
+  const button = event.submitter;
+  const originalText = button?.textContent;
+  if (button) {
+    button.disabled = true;
+    button.textContent = "送出中...";
+  }
+  message.textContent = "正在建立帳號...";
+  const requestedSections = form.getAll("section");
+  const { data, error } = await client.auth.signUp({
+    email: form.get("email"),
+    password: form.get("password"),
+    options: {
+      emailRedirectTo: authRedirectUrl,
+      data: {
+        display_name: form.get("display_name"),
+        requested_sections: requestedSections,
+        request_note: form.get("note")
+      }
+    }
+  });
+  if (button) {
+    button.disabled = false;
+    button.textContent = originalText;
+  }
+  if (error) {
+    message.textContent = error.message;
+    return;
+  }
+  if (data.session) {
+    state.session = data.session;
+    await initialize();
+    return;
+  }
+  message.textContent = "驗證 Email 已寄出。請到信箱點擊驗證連結，驗證後回到後台提交審核。";
+});
+
+$("[data-show-register]").addEventListener("click", () => setAuthMode("register"));
+$("[data-show-login]").addEventListener("click", () => setAuthMode("login"));
 
 const handleSignOut = async (event) => {
   const button = event.currentTarget;
