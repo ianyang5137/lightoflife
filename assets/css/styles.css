@@ -501,6 +501,13 @@ button {
   height: 520px;
 }
 
+.image-panel.welcome-photo img {
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  object-position: center;
+}
+
 .section-heading {
   max-width: 720px;
   margin-bottom: 34px;
@@ -1270,6 +1277,11 @@ dd {
   .image-panel img,
   .image-panel.tall img {
     height: 340px;
+  }
+
+  .image-panel.welcome-photo img {
+    height: auto;
+    aspect-ratio: 16 / 10;
   }
 }
 
