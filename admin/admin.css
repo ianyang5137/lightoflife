@@ -517,6 +517,43 @@ select:disabled {
   font-weight: 700;
 }
 
+.user-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.status-pill.active {
+  border-color: rgba(37, 95, 82, 0.24);
+  background: rgba(37, 95, 82, 0.12);
+  color: var(--green);
+}
+
+.status-pill.inactive {
+  border-color: var(--line);
+  background: var(--field-disabled);
+  color: var(--muted);
+}
+
+.user-active-toggle {
+  align-self: end;
+  min-height: 46px;
+}
+
 .user-row form {
   padding: 20px;
 }

@@ -164,6 +164,7 @@ drop policy if exists "prayer_items_editor_update" on public.prayer_items;
 drop policy if exists "prayer_items_admin_delete" on public.prayer_items;
 drop policy if exists "prayer_items_section_insert" on public.prayer_items;
 drop policy if exists "prayer_items_section_update" on public.prayer_items;
+drop policy if exists "prayer_items_section_delete" on public.prayer_items;
 
 create policy "prayer_items_section_insert"
 on public.prayer_items
@@ -188,11 +189,11 @@ to authenticated
 using (public.can_edit_section('prayer_items'))
 with check (public.can_edit_section('prayer_items'));
 
-create policy "prayer_items_admin_delete"
+create policy "prayer_items_section_delete"
 on public.prayer_items
 for delete
 to authenticated
-using (public.is_admin());
+using (public.can_edit_section('prayer_items'));
 
 drop policy if exists "media_assets_editor_insert" on public.media_assets;
 drop policy if exists "media_assets_editor_update" on public.media_assets;

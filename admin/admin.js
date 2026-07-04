@@ -355,7 +355,7 @@ const resetLocalSession = () => {
 const renderNav = () => {
   const allowed = sections.filter((section) => canAccess(section.key));
   const userButton = state.profile.role === "admin"
-    ? `<button type="button" data-section="access_requests">帳號申請</button><button type="button" data-section="users">用户與權限</button>`
+    ? `<button type="button" data-section="users">用户與權限</button>`
     : "";
   nav.innerHTML = [
     ...allowed.map((section) => `<button type="button" data-section="${section.key}">${section.label}</button>`),
@@ -380,11 +380,6 @@ const setHeading = (sectionKey) => {
   if (sectionKey === "users") {
     kicker.textContent = "Permissions";
     title.textContent = "用户與權限";
-    return;
-  }
-  if (sectionKey === "access_requests") {
-    kicker.textContent = "Access Requests";
-    title.textContent = "帳號申請";
     return;
   }
   const section = sections.find((item) => item.key === sectionKey);
@@ -656,7 +651,10 @@ const renderPrayer = async (token) => {
             <label class="full">中文內容<textarea name="body_zh">${escapeHtml(item.body_zh)}</textarea></label>
             <label class="full">英文內容<textarea name="body_en">${escapeHtml(item.body_en)}</textarea></label>
           </div>
-          <div class="actions"><button class="primary-button" type="submit">保存這一項</button></div>
+          <div class="actions">
+            <button class="primary-button" type="submit">保存這一項</button>
+            <button class="danger-button" type="button" data-delete-prayer>刪除這一項</button>
+          </div>
         </form>
       `).join("")}
       <form class="panel" data-new-prayer-form>
@@ -684,6 +682,29 @@ const renderPrayer = async (token) => {
         })
         .eq("id", currentForm.dataset.id), "保存代禱事項");
     }, "代禱事項已保存"));
+
+    $("[data-delete-prayer]", formElement).addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      if (!window.confirm("確定要刪除這一項代禱事項嗎？")) return;
+      const originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = "刪除中...";
+      setStatus("正在刪除...", false, false);
+      try {
+        await runQuery(() => client
+          .from("prayer_items")
+          .delete()
+          .eq("id", formElement.dataset.id), "刪除代禱事項");
+        setStatus("代禱事項已刪除");
+        await renderPrayer(state.renderToken);
+      } catch (error) {
+        console.error(error);
+        setStatus(`刪除失敗：${error.message}`, true, false);
+      } finally {
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+    });
   });
   $("[data-new-prayer-form]").addEventListener("submit", (event) => runSave(event, async (form) => {
     await runQuery(() => client
@@ -714,9 +735,9 @@ const renderUsers = async (token) => {
   body.innerHTML = `
     <div class="stack">
       <div class="empty-state">
-        新增用户請到
+        新用户可以自行申請後台帳號並驗證 Email，也可以到
         <a href="${supabaseUsersUrl}" target="_blank" rel="noopener">Supabase Authentication → Users</a>
-        點 <strong>Add user</strong> 建立帳號。用户第一次建立後會出現在這裡；再回到本頁設定角色與可編輯板塊。普通用户只能編輯被勾選的板塊。
+        手動建立。用户出現在這裡後，請設定角色、啟用狀態與可編輯板塊；普通用户只能編輯被勾選的板塊。
       </div>
       ${profiles.map((profile) => {
         const userPermissions = permissions
@@ -731,7 +752,7 @@ const renderUsers = async (token) => {
               </span>
               <span class="user-meta">
                 ${escapeHtml(profile.role)}
-                ${profile.is_active ? " · 已啟用" : " · 未啟用"}
+                <span class="status-pill ${profile.is_active ? "active" : "inactive"}">${profile.is_active ? "已啟用" : "未啟用"}</span>
               </span>
             </summary>
             <form data-user-form data-id="${profile.id}">
@@ -741,6 +762,10 @@ const renderUsers = async (token) => {
                   <select name="role">
                     ${["admin", "editor", "viewer"].map((role) => `<option value="${role}" ${profile.role === role ? "selected" : ""}>${role}</option>`).join("")}
                   </select>
+                </label>
+                <label class="checkbox-label user-active-toggle">
+                  <input type="checkbox" name="is_active" ${profile.is_active ? "checked" : ""} />
+                  啟用此帳號
                 </label>
               </div>
               <h3>可編輯板塊</h3>
@@ -767,7 +792,8 @@ const renderUsers = async (token) => {
         .from("profiles")
         .update({
           display_name: form.get("display_name"),
-          role: form.get("role")
+          role: form.get("role"),
+          is_active: form.has("is_active")
         })
         .eq("id", userId), "保存用户角色");
       await runQuery(() => client
@@ -888,7 +914,6 @@ const renderSection = async (sectionKey) => {
     if (sectionKey === "bible_reading") await renderTimed(() => renderBibleReading(token), "載入線上讀經");
     if (sectionKey === "service_rosters") await renderTimed(() => renderRoster(token), "載入服事表");
     if (sectionKey === "prayer_items") await renderTimed(() => renderPrayer(token), "載入代禱事項");
-    if (sectionKey === "access_requests") await renderTimed(() => renderAccessRequests(token), "載入帳號申請");
     if (sectionKey === "users") await renderTimed(() => renderUsers(token), "載入用户與權限");
   } catch (error) {
     console.error(error);
