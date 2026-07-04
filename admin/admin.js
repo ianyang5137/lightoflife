@@ -723,27 +723,38 @@ const renderUsers = async (token) => {
           .filter((permission) => permission.user_id === profile.id && permission.can_edit)
           .map((permission) => permission.section_key);
         return `
-          <form class="panel" data-user-form data-id="${profile.id}">
-            <h2>${escapeHtml(profile.email)}</h2>
-            <div class="form-grid">
-              <label>顯示名稱<input name="display_name" value="${escapeHtml(profile.display_name)}" /></label>
-              <label>角色
-                <select name="role">
-                  ${["admin", "editor", "viewer"].map((role) => `<option value="${role}" ${profile.role === role ? "selected" : ""}>${role}</option>`).join("")}
-                </select>
-              </label>
-            </div>
-            <h3>可編輯板塊</h3>
-            <div class="permission-grid">
-              ${sections.map((section) => `
-                <label class="checkbox-label">
-                  <input type="checkbox" name="section" value="${section.key}" ${userPermissions.includes(section.key) ? "checked" : ""} />
-                  ${section.label}
+          <details class="panel user-row">
+            <summary>
+              <span>
+                <strong>${escapeHtml(profile.email)}</strong>
+                <small>${escapeHtml(profile.display_name || "未填姓名")}</small>
+              </span>
+              <span class="user-meta">
+                ${escapeHtml(profile.role)}
+                ${profile.is_active ? " · 已啟用" : " · 未啟用"}
+              </span>
+            </summary>
+            <form data-user-form data-id="${profile.id}">
+              <div class="form-grid">
+                <label>顯示名稱<input name="display_name" value="${escapeHtml(profile.display_name)}" /></label>
+                <label>角色
+                  <select name="role">
+                    ${["admin", "editor", "viewer"].map((role) => `<option value="${role}" ${profile.role === role ? "selected" : ""}>${role}</option>`).join("")}
+                  </select>
                 </label>
-              `).join("")}
-            </div>
-            <div class="actions"><button class="primary-button" type="submit">保存用户權限</button></div>
-          </form>
+              </div>
+              <h3>可編輯板塊</h3>
+              <div class="permission-grid">
+                ${sections.map((section) => `
+                  <label class="checkbox-label">
+                    <input type="checkbox" name="section" value="${section.key}" ${userPermissions.includes(section.key) ? "checked" : ""} />
+                    ${section.label}
+                  </label>
+                `).join("")}
+              </div>
+              <div class="actions"><button class="primary-button" type="submit">保存用户權限</button></div>
+            </form>
+          </details>
         `;
       }).join("")}
     </div>
