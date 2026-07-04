@@ -43,7 +43,7 @@ const translations = {
     "nav.about": "關於我們",
     "nav.services": "聚會時間",
     "nav.new": "新朋友",
-    "nav.messages": "信息讀經",
+    "nav.messages": "主日信息",
     "nav.updates": "服事代禱",
     "nav.giving": "奉獻",
     "nav.contact": "聯絡",
