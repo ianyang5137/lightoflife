@@ -117,7 +117,7 @@ const translations = {
     "footer.name": "紐西蘭奧克蘭生命之光靈糧堂",
     "footer.youtube": "YouTube 頻道",
     "footer.zoom": "Zoom會議",
-    "footer.admin": "後台",
+    "footer.admin": "登入",
     "footer.copy": "© 2026 Light of Life, Bread of Life Christian Church in Auckland, New Zealand."
   },
   en: {
@@ -204,7 +204,7 @@ const translations = {
     "footer.name": "Light of Life, Bread of Life Christian Church in Auckland, New Zealand",
     "footer.youtube": "YouTube Channel",
     "footer.zoom": "Zoom Meeting",
-    "footer.admin": "Admin",
+    "footer.admin": "Login",
     "footer.copy": "© 2026 Light of Life, Bread of Life Christian Church in Auckland, New Zealand."
   }
 };
