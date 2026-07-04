@@ -298,14 +298,30 @@ select:disabled {
   font-size: 0.9rem;
 }
 
-.sidebar-footer button {
+.sidebar-footer button,
+.sidebar-footer .sidebar-link {
   width: 100%;
   min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
   font-weight: 800;
+  text-decoration: none;
+}
+
+.sidebar-footer .sidebar-link {
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.sidebar-footer button:hover,
+.sidebar-footer .sidebar-link:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .workspace {
