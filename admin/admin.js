@@ -921,16 +921,21 @@ loginForm.addEventListener("submit", async (event) => {
   const message = $("[data-login-message]");
   const form = new FormData(event.currentTarget);
   message.textContent = "登入中...";
-  const { error } = await client.auth.signInWithPassword({
-    email: form.get("email"),
-    password: form.get("password")
-  });
-  if (error) {
-    message.textContent = error.message;
-    return;
+  try {
+    const { error } = await withTimeout(client.auth.signInWithPassword({
+      email: form.get("email"),
+      password: form.get("password")
+    }), "登入", 10000);
+    if (error) {
+      message.textContent = error.message;
+      return;
+    }
+    message.textContent = "";
+    initialize();
+  } catch (error) {
+    console.error(error);
+    message.textContent = `登入失敗：${error.message}`;
   }
-  message.textContent = "";
-  initialize();
 });
 
 registerForm.addEventListener("submit", async (event) => {
@@ -945,32 +950,38 @@ registerForm.addEventListener("submit", async (event) => {
   }
   message.textContent = "正在建立帳號...";
   const requestedSections = form.getAll("section");
-  const { data, error } = await client.auth.signUp({
-    email: form.get("email"),
-    password: form.get("password"),
-    options: {
-      emailRedirectTo: authRedirectUrl,
-      data: {
-        display_name: form.get("display_name"),
-        requested_sections: requestedSections,
-        request_note: form.get("note")
+  try {
+    const { data, error } = await withTimeout(client.auth.signUp({
+      email: form.get("email"),
+      password: form.get("password"),
+      options: {
+        emailRedirectTo: authRedirectUrl,
+        data: {
+          display_name: form.get("display_name"),
+          requested_sections: requestedSections,
+          request_note: form.get("note")
+        }
       }
+    }), "建立帳號", 10000);
+    if (error) {
+      message.textContent = error.message;
+      return;
     }
-  });
-  if (button) {
-    button.disabled = false;
-    button.textContent = originalText;
+    if (data.session) {
+      state.session = data.session;
+      await initialize();
+      return;
+    }
+    message.textContent = "驗證 Email 已寄出。請到信箱點擊驗證連結，驗證後回到後台提交審核。";
+  } catch (error) {
+    console.error(error);
+    message.textContent = `建立帳號失敗：${error.message}`;
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = originalText;
+    }
   }
-  if (error) {
-    message.textContent = error.message;
-    return;
-  }
-  if (data.session) {
-    state.session = data.session;
-    await initialize();
-    return;
-  }
-  message.textContent = "驗證 Email 已寄出。請到信箱點擊驗證連結，驗證後回到後台提交審核。";
 });
 
 $("[data-show-register]").addEventListener("click", () => setAuthMode("register"));

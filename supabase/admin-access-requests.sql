@@ -17,8 +17,26 @@ create table if not exists public.admin_access_requests (
   unique (user_id)
 );
 
+create or replace function public.is_admin_direct()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+set row_security = off
+as $$
+  select exists (
+    select 1
+    from public.profiles
+    where id = auth.uid()
+      and role = 'admin'::public.app_role
+      and is_active = true
+  );
+$$;
+
 grant select, insert, update on public.profiles to authenticated;
 grant select, insert, update on public.admin_access_requests to authenticated;
+grant execute on function public.is_admin_direct() to authenticated;
 
 drop trigger if exists admin_access_requests_set_updated_at on public.admin_access_requests;
 
@@ -46,15 +64,15 @@ create policy "profiles_read_self_or_admin"
 on public.profiles
 for select
 to authenticated
-using (id = auth.uid() or public.is_admin());
+using (id = auth.uid() or public.is_admin_direct());
 
 create policy "profiles_update_self_name_or_admin"
 on public.profiles
 for update
 to authenticated
-using (id = auth.uid() or public.is_admin())
+using (id = auth.uid() or public.is_admin_direct())
 with check (
-  public.is_admin()
+  public.is_admin_direct()
   or (
     id = auth.uid()
     and role = 'viewer'::public.app_role
@@ -80,7 +98,7 @@ create policy "admin_access_requests_read_self_or_admin"
 on public.admin_access_requests
 for select
 to authenticated
-using (user_id = auth.uid() or public.is_admin());
+using (user_id = auth.uid() or public.is_admin_direct());
 
 create policy "admin_access_requests_update_self_pending"
 on public.admin_access_requests
@@ -99,5 +117,5 @@ create policy "admin_access_requests_admin_update"
 on public.admin_access_requests
 for update
 to authenticated
-using (public.is_admin())
-with check (public.is_admin());
+using (public.is_admin_direct())
+with check (public.is_admin_direct());
