@@ -1,6 +1,13 @@
 :root {
+  color-scheme: light;
   --bg: #f7f5ee;
   --surface: #ffffff;
+  --surface-soft: #fbfaf6;
+  --surface-overlay: rgba(255, 255, 255, 0.96);
+  --surface-wash: rgba(255, 255, 255, 0.7);
+  --field-bg: #ffffff;
+  --field-disabled: #f2f0ea;
+  --disabled-ink: #7a8581;
   --ink: #17231f;
   --muted: #65736e;
   --line: rgba(37, 95, 82, 0.16);
@@ -9,7 +16,31 @@
   --gold: #b88a3d;
   --danger: #a33d35;
   --shadow: 0 20px 50px rgba(18, 60, 52, 0.13);
+  --panel-shadow: 0 12px 28px rgba(18, 60, 52, 0.06);
   --font: "Noto Sans TC", "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #101816;
+    --surface: #16231f;
+    --surface-soft: #1b2b26;
+    --surface-overlay: rgba(18, 35, 31, 0.96);
+    --surface-wash: rgba(22, 35, 31, 0.72);
+    --field-bg: #101a17;
+    --field-disabled: #1b2522;
+    --disabled-ink: #7d8d88;
+    --ink: #edf3ef;
+    --muted: #9cada8;
+    --line: rgba(207, 224, 218, 0.14);
+    --green: #83c7b7;
+    --green-deep: #0b2a24;
+    --gold: #d2a85b;
+    --danger: #f08a80;
+    --shadow: 0 20px 56px rgba(0, 0, 0, 0.36);
+    --panel-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+  }
 }
 
 * {
@@ -57,7 +88,7 @@ button {
   width: min(430px, 100%);
   padding: 34px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.96);
+  background: var(--surface-overlay);
   box-shadow: var(--shadow);
 }
 
@@ -65,6 +96,20 @@ button {
   width: 230px;
   max-width: 100%;
   filter: brightness(0) saturate(100%) invert(18%) sepia(20%) saturate(969%) hue-rotate(119deg) brightness(94%) contrast(93%);
+}
+
+@media (prefers-color-scheme: dark) {
+  .login-card img {
+    filter: brightness(0) saturate(100%) invert(78%) sepia(15%) saturate(696%) hue-rotate(116deg) brightness(95%) contrast(92%);
+  }
+
+  .request-status {
+    color: var(--gold);
+  }
+
+  .request-status.approved {
+    color: var(--green);
+  }
 }
 
 .eyebrow {
@@ -149,7 +194,7 @@ select {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--field-bg);
   color: var(--ink);
   padding: 11px 12px;
   outline: none;
@@ -157,7 +202,7 @@ select {
 
 input[type="file"] {
   padding: 10px;
-  background: #fbfaf6;
+  background: var(--surface-soft);
 }
 
 .upload-field span {
@@ -179,11 +224,25 @@ select:focus {
   box-shadow: 0 0 0 3px rgba(37, 95, 82, 0.12);
 }
 
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.78;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--ink);
+  box-shadow: 0 0 0 1000px var(--field-bg) inset;
+  caret-color: var(--ink);
+}
+
 input:disabled,
 textarea:disabled,
 select:disabled {
-  color: #7a8581;
-  background: #f2f0ea;
+  color: var(--disabled-ink);
+  background: var(--field-disabled);
   cursor: not-allowed;
 }
 
@@ -209,11 +268,11 @@ select:disabled {
 
 .primary-button {
   background: var(--green);
-  color: #fff;
+  color: var(--surface);
 }
 
 .secondary-button {
-  background: #fff;
+  background: var(--surface);
   border-color: var(--line);
   color: var(--green);
 }
@@ -254,7 +313,7 @@ select:disabled {
   padding: 12px 14px;
   border: 1px solid rgba(37, 95, 82, 0.18);
   border-radius: 8px;
-  background: #fff;
+  background: var(--surface);
   color: var(--green);
   box-shadow: var(--shadow);
   font-weight: 800;
@@ -398,7 +457,7 @@ select:disabled {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
-  box-shadow: 0 12px 28px rgba(18, 60, 52, 0.06);
+  box-shadow: var(--panel-shadow);
 }
 
 .panel h2 {
@@ -493,7 +552,7 @@ select:disabled {
   padding: 16px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fbfaf6;
+  background: var(--surface-soft);
 }
 
 .roster-grid {
@@ -543,7 +602,7 @@ select:disabled {
   padding: 8px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--field-bg);
 }
 
 .checkbox-label input {
@@ -555,7 +614,7 @@ select:disabled {
   border: 1px dashed var(--line);
   border-radius: 8px;
   color: var(--muted);
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--surface-wash);
 }
 
 .empty-state a {
