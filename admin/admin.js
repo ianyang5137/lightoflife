@@ -88,6 +88,52 @@ const titlePayload = (source, form) => ({
   title_en: isAdmin() ? form.get("title_en") : source.title_en
 });
 
+const imagePathField = (name, value = "") => `
+  <label class="full image-path-field">
+    圖片路徑
+    <input name="${name}" value="${escapeHtml(value)}" data-image-path-input />
+    <span class="image-preview-label">目前圖片預覽</span>
+    <span class="image-preview-frame">
+      ${value
+        ? `<img src="${escapeHtml(value)}" alt="圖片預覽" data-image-preview />`
+        : `<span class="image-preview-empty" data-image-preview-empty>尚未設定圖片路徑</span>`}
+    </span>
+  </label>
+`;
+
+const bindImagePreviews = (root = document) => {
+  $$("[data-image-path-input]", root).forEach((input) => {
+    const field = input.closest(".image-path-field");
+    const frame = $(".image-preview-frame", field);
+    const render = (src) => {
+      if (!frame) return;
+      const trimmed = String(src || "").trim();
+      frame.innerHTML = trimmed
+        ? `<img src="${escapeHtml(trimmed)}" alt="圖片預覽" data-image-preview />`
+        : `<span class="image-preview-empty" data-image-preview-empty>尚未設定圖片路徑</span>`;
+    };
+    input.addEventListener("input", () => render(input.value));
+  });
+
+  $$("[data-image-file-input]", root).forEach((input) => {
+    input.addEventListener("change", () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      const pathInput = input.form?.elements[input.dataset.pathTarget];
+      if (!pathInput) return;
+      const field = pathInput.closest(".image-path-field");
+      const frame = $(".image-preview-frame", field);
+      if (!frame) return;
+      const previewUrl = URL.createObjectURL(file);
+      const image = new Image();
+      image.onload = () => URL.revokeObjectURL(previewUrl);
+      image.alt = "即將上傳的圖片預覽";
+      image.src = previewUrl;
+      frame.replaceChildren(image);
+    });
+  });
+};
+
 const formatSections = (sectionKeys = []) => sectionKeys
   .map((key) => sectionLabel(key))
   .join("、") || "未選擇";
@@ -450,10 +496,10 @@ const renderGatherings = async (token) => {
             <label>英文時間<input name="item_${index}_time_en" value="${escapeHtml(item.time_en)}" /></label>
             <label class="full">中文簡介<textarea name="item_${index}_description_zh">${escapeHtml(item.description_zh)}</textarea></label>
             <label class="full">英文簡介<textarea name="item_${index}_description_en">${escapeHtml(item.description_en)}</textarea></label>
-            <label class="full">圖片路徑<input name="item_${index}_image" value="${escapeHtml(item.image)}" /></label>
+            ${imagePathField(`item_${index}_image`, item.image)}
             <label class="full upload-field">
               從本機上傳圖片
-              <input type="file" name="item_${index}_image_file" accept="image/*" />
+              <input type="file" name="item_${index}_image_file" accept="image/*" data-image-file-input data-path-target="item_${index}_image" />
               <span>可從電腦或手機選擇圖片；保存後會上傳到 Supabase Storage 並自動替換圖片路徑。</span>
             </label>
           </div>
@@ -462,6 +508,7 @@ const renderGatherings = async (token) => {
       <div class="actions"><button class="primary-button" type="submit">保存聚會時間</button></div>
     </form>
   `;
+  bindImagePreviews($("[data-gatherings-form]"));
 
   $("[data-gatherings-form]").addEventListener("submit", (event) => runSave(event, async (form) => {
     const updatedItems = await Promise.all(items.map(async (item, index) => {
