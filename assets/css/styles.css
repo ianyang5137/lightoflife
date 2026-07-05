@@ -391,6 +391,55 @@ button {
   width: 100%;
 }
 
+.mission-verse {
+  background:
+    linear-gradient(90deg, rgba(37, 95, 82, 0.08), rgba(184, 138, 61, 0.06)),
+    var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+
+.mission-verse-inner {
+  display: grid;
+  grid-template-columns: 0.42fr 1fr;
+  gap: clamp(24px, 5vw, 76px);
+  align-items: center;
+  padding: clamp(30px, 5vw, 56px) 0;
+}
+
+.mission-verse blockquote,
+.welcome-verse {
+  margin: 0;
+}
+
+.mission-verse blockquote {
+  position: relative;
+  padding-left: clamp(18px, 3vw, 30px);
+  border-left: 3px solid var(--gold);
+}
+
+.mission-verse blockquote p {
+  margin: 0;
+  max-width: 880px;
+  color: var(--green-deep);
+  font-family: var(--font-heading);
+  font-size: clamp(1.45rem, 2.9vw, 2.45rem);
+  font-weight: 700;
+  line-height: 1.42;
+}
+
+.mission-verse cite,
+.welcome-verse cite {
+  display: block;
+  margin-top: 12px;
+  color: var(--gold);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 .welcome-band {
   background: var(--green);
   color: #fff;
@@ -421,6 +470,24 @@ button {
   margin: 0;
   color: rgba(255, 255, 255, 0.86);
   font-size: 1.08rem;
+}
+
+.welcome-verse {
+  margin-bottom: 22px;
+  padding: 0 0 0 18px;
+  border-left: 3px solid var(--gold-soft);
+}
+
+.welcome-verse p {
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: clamp(1.18rem, 2vw, 1.55rem);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.welcome-verse cite {
+  color: var(--gold-soft);
 }
 
 .welcome-copy p + p {
@@ -1251,6 +1318,7 @@ dd {
   }
 
   .welcome-grid,
+  .mission-verse-inner,
   .giving-panel,
   .two-column,
   .new-grid,
