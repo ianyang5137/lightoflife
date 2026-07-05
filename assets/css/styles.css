@@ -365,15 +365,6 @@ button {
   color: #0f2f29;
 }
 
-.hero .button-primary {
-  color: #24190b;
-}
-
-.hero .button-primary:hover,
-.hero .button-primary:focus-visible {
-  color: #24190b;
-}
-
 .button-secondary {
   color: #fff;
   border-color: rgba(255, 255, 255, 0.44);
