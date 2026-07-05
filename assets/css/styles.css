@@ -355,14 +355,23 @@ button {
 .button-primary {
   border-color: rgba(18, 60, 52, 0.18);
   background: var(--gold);
-  color: #18130a;
+  color: #0f2f29;
 }
 
 .button-primary:hover,
 .button-primary:focus-visible {
   border-color: var(--green-deep);
   background: #c99a4a;
-  color: #18130a;
+  color: #0f2f29;
+}
+
+.hero .button-primary {
+  color: #24190b;
+}
+
+.hero .button-primary:hover,
+.hero .button-primary:focus-visible {
+  color: #24190b;
 }
 
 .button-secondary {
