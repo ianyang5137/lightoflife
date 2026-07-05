@@ -34,6 +34,12 @@ Image uploads:
 - The admin UI uploads local images to the public `site-media` Storage bucket.
 - Re-run `section-permissions.sql` after enabling uploads so admins and content editors can write to Storage under the site media bucket.
 
+Automatic YouTube preview:
+
+- `.github/workflows/update-youtube-preview.yml` runs every Sunday after 7 PM New Zealand time and updates the homepage video preview from the latest item on the church YouTube live/streams page.
+- Add a GitHub Actions secret named `SUPABASE_SERVICE_ROLE_KEY` with the Supabase service role key. The public publishable key cannot update CMS rows.
+- You can also run the workflow manually from GitHub Actions → `Update YouTube Preview`.
+
 The first admin UI intentionally exposes only basic fields: titles, text, times,
 Zoom information, video ID, serving roster names, and prayer item text. Advanced
 fields such as status, sorting, and visibility remain hidden from non-admin users.
