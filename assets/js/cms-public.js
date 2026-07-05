@@ -25,6 +25,39 @@
     if (element && value) element.textContent = value;
   };
 
+  const configureLink = (element, href) => {
+    if (!element || !href) return;
+    element.href = href;
+    const isExternal = /^https?:\/\//i.test(href);
+    if (isExternal) {
+      element.target = "_blank";
+      element.rel = "noopener";
+    } else {
+      element.removeAttribute("target");
+      element.removeAttribute("rel");
+    }
+  };
+
+  const renderTopAnnouncement = (section) => {
+    const content = section?.content || {};
+    const eventLink = document.querySelector(".topbar-event");
+    const actionLink = document.querySelector(".topbar-action");
+    if (!eventLink || !actionLink) return;
+    const label = text(content.label_zh, content.label_en);
+    const headline = text(content.headline_zh, content.headline_en);
+    const detail = text(content.detail_zh, content.detail_en);
+    const cta = text(content.cta_zh, content.cta_en);
+    const url = content.url || "#updates";
+
+    const spans = eventLink.querySelectorAll("span");
+    if (spans[0] && label) spans[0].textContent = label;
+    if (spans[1] && headline) spans[1].textContent = headline;
+    if (spans[2] && detail) spans[2].textContent = detail;
+    if (cta) actionLink.textContent = cta;
+    configureLink(eventLink, url);
+    configureLink(actionLink, url);
+  };
+
   const renderGatherings = (section) => {
     const items = section?.content?.items;
     if (!Array.isArray(items)) return;
@@ -119,6 +152,7 @@
     try {
       const sections = await get("site_sections?status=eq.published&select=section_key,title_zh,title_en,content");
       const byKey = Object.fromEntries(sections.map((section) => [section.section_key, section]));
+      renderTopAnnouncement(byKey.top_announcement);
       renderGatherings(byKey.gatherings);
       renderMessages(byKey.messages);
       renderBibleReading(byKey.bible_reading);

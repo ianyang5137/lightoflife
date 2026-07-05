@@ -250,6 +250,7 @@ select profiles.id, sections.section_key, true
 from public.profiles
 cross join (
   values
+    ('top_announcement'),
     ('gatherings'),
     ('messages'),
     ('bible_reading'),

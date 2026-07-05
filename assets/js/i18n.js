@@ -34,10 +34,10 @@ window.addEventListener("pageshow", keepPlainPageLoadAtTop);
 
 const translations = {
   "zh-Hant": {
-    "top.event.name": "2026 正道教牧論壇",
-    "top.event.theme": "面對死亡",
-    "top.event.detail": "2026/08/22（六）09:00–16:30",
-    "top.event.cta": "立即報名",
+    "top.event.name": "中區禱告會",
+    "top.event.theme": "8月4日（週二）晚上 7:30–9:00",
+    "top.event.detail": "將在本教會舉行",
+    "top.event.cta": "了解詳情",
     "brand.title": "生命之光靈糧堂",
     "brand.subtitle": "Light of Life Church Auckland",
     "nav.about": "關於我們",
@@ -121,10 +121,10 @@ const translations = {
     "footer.copy": "© 2026 Light of Life, Bread of Life Christian Church in Auckland, New Zealand."
   },
   en: {
-    "top.event.name": "2026 CMI Pastoral Forum",
-    "top.event.theme": "Facing Death",
-    "top.event.detail": "22 Aug 2026, 09:00–16:30",
-    "top.event.cta": "Register",
+    "top.event.name": "Central Auckland Prayer Meeting",
+    "top.event.theme": "4 Aug (Tue), 7:30–9:00 PM",
+    "top.event.detail": "Held at our church",
+    "top.event.cta": "Learn more",
     "brand.title": "Light of Life Church",
     "brand.subtitle": "Bread of Life Christian Church Auckland",
     "nav.about": "About",

@@ -10,6 +10,7 @@ const client = window.supabase?.createClient(config.supabaseUrl, config.supabase
 const supabaseUsersUrl = "https://supabase.com/dashboard/project/odthwmpyhaqagdphcooi/auth/users";
 
 const sections = [
+  { key: "top_announcement", label: "顶部预告", kicker: "Announcement" },
   { key: "gatherings", label: "聚會時間", kicker: "Gatherings" },
   { key: "messages", label: "主日信息", kicker: "Messages" },
   { key: "bible_reading", label: "線上讀經", kicker: "Bible Reading" },
@@ -439,12 +440,52 @@ const loadSiteSection = async (sectionKey) => selectOne(`讀取 ${sectionLabel(s
   .eq("section_key", sectionKey)
 );
 
+const defaultTopAnnouncementSection = {
+  section_key: "top_announcement",
+  title_zh: "顶部预告",
+  title_en: "Top Announcement",
+  content: {
+    label_zh: "中區禱告會",
+    label_en: "Central Auckland Prayer Meeting",
+    headline_zh: "8月4日（週二）晚上 7:30–9:00",
+    headline_en: "4 Aug (Tue), 7:30–9:00 PM",
+    detail_zh: "將在本教會舉行",
+    detail_en: "Held at our church",
+    cta_zh: "了解詳情",
+    cta_en: "Learn more",
+    url: "#updates"
+  }
+};
+
+const loadTopAnnouncementSection = async () => {
+  const section = await selectMaybeOne("讀取顶部预告", () => client
+    .from("site_sections")
+    .select("*")
+    .eq("section_key", "top_announcement")
+  );
+  return section || defaultTopAnnouncementSection;
+};
+
 const saveSiteSection = async (sectionKey, payload) => {
   setStatus("正在保存...", false, false);
   await runQuery(() => client
     .from("site_sections")
     .update({ ...payload, updated_by: state.profile.id })
     .eq("section_key", sectionKey), `保存 ${sectionLabel(sectionKey)}`);
+  setStatus("已保存");
+};
+
+const saveTopAnnouncementSection = async (payload) => {
+  setStatus("正在保存...", false, false);
+  await runQuery(() => client
+    .from("site_sections")
+    .insert({
+      section_key: "top_announcement",
+      status: "published",
+      published_at: new Date().toISOString(),
+      ...payload,
+      updated_by: state.profile.id
+    }), "建立顶部预告");
   setStatus("已保存");
 };
 
@@ -532,6 +573,54 @@ const renderGatherings = async (token) => {
       content: { ...section.content, items: updatedItems }
     });
   }, "聚會時間已保存"));
+};
+
+const renderTopAnnouncement = async (token) => {
+  const section = await loadTopAnnouncementSection();
+  if (!isCurrentRender(token)) return;
+  const content = section.content || {};
+  body.innerHTML = `
+    <form class="panel" data-top-announcement-form>
+      <h2>顶部预告</h2>
+      <div class="form-grid">
+        ${titleField("title_zh", "中文管理標題", section.title_zh)}
+        ${titleField("title_en", "英文管理標題", section.title_en)}
+        ${lockedTitleNote()}
+        <label>中文名称<input name="label_zh" value="${escapeHtml(content.label_zh)}" /></label>
+        <label>英文名称<input name="label_en" value="${escapeHtml(content.label_en)}" /></label>
+        <label>中文时间/主题<input name="headline_zh" value="${escapeHtml(content.headline_zh)}" /></label>
+        <label>英文时间/主题<input name="headline_en" value="${escapeHtml(content.headline_en)}" /></label>
+        <label class="full">中文补充说明<textarea name="detail_zh">${escapeHtml(content.detail_zh)}</textarea></label>
+        <label class="full">英文补充说明<textarea name="detail_en">${escapeHtml(content.detail_en)}</textarea></label>
+        <label>中文按钮文字<input name="cta_zh" value="${escapeHtml(content.cta_zh)}" /></label>
+        <label>英文按钮文字<input name="cta_en" value="${escapeHtml(content.cta_en)}" /></label>
+        <label class="full">链接<input name="url" value="${escapeHtml(content.url || "#updates")}" /></label>
+      </div>
+      <div class="actions"><button class="primary-button" type="submit">保存顶部预告</button></div>
+    </form>
+  `;
+  $("[data-top-announcement-form]").addEventListener("submit", (event) => runSave(event, async (form) => {
+    const payload = {
+      ...titlePayload(section, form),
+      content: {
+        ...content,
+        label_zh: form.get("label_zh"),
+        label_en: form.get("label_en"),
+        headline_zh: form.get("headline_zh"),
+        headline_en: form.get("headline_en"),
+        detail_zh: form.get("detail_zh"),
+        detail_en: form.get("detail_en"),
+        cta_zh: form.get("cta_zh"),
+        cta_en: form.get("cta_en"),
+        url: form.get("url")
+      }
+    };
+    if (section.id) {
+      await saveSiteSection("top_announcement", payload);
+    } else {
+      await saveTopAnnouncementSection(payload);
+    }
+  }, "顶部预告已保存"));
 };
 
 const renderMessages = async (token) => {
@@ -956,6 +1045,7 @@ const renderSection = async (sectionKey) => {
     state.currentSection = sectionKey;
     setHeading(sectionKey);
     body.innerHTML = `<div class="empty-state">正在載入 ${sectionLabel(sectionKey)}...</div>`;
+    if (sectionKey === "top_announcement") await renderTimed(() => renderTopAnnouncement(token), "載入顶部预告");
     if (sectionKey === "gatherings") await renderTimed(() => renderGatherings(token), "載入聚會時間");
     if (sectionKey === "messages") await renderTimed(() => renderMessages(token), "載入主日信息");
     if (sectionKey === "bible_reading") await renderTimed(() => renderBibleReading(token), "載入線上讀經");
