@@ -85,8 +85,17 @@ docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" < scr
 
 This hides duplicate technical collections, adds editable service roster rows, and applies Chinese labels for the main admin collections.
 
+Seed the editable basic site settings and common switches:
+
+```bash
+ADMIN_PASSWORD='your-admin-password' DIRECTUS_URL='https://admin.lightoflife.org.nz' node scripts/setup-site-settings.mjs
+```
+
+This creates the `site_settings` singleton for stable homepage copy, section headings, contact links, footer links and common visibility switches.
+
 ## Collections
 
+- `site_settings` - basic site copy, common links and visibility switches used by the public website.
 - `pages` - page content with `zh` / `en` title and body fields.
 - `sermons` - weekly sermon title, speaker, date, content, audio URL, YouTube URL and cover image.
 - `events` - event calendar title, date, time, location, description and cover image.

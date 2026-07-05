@@ -27,9 +27,88 @@
   };
 
   const text = (zh, en) => (language === "en" ? en || zh || "" : zh || en || "");
+  const siteSettingKeys = [
+    "brand.title",
+    "brand.subtitle",
+    "hero.eyebrow",
+    "hero.title",
+    "hero.copy",
+    "hero.primary",
+    "hero.secondary",
+    "missionVerse.kicker",
+    "missionVerse.text",
+    "missionVerse.reference",
+    "welcome.kicker",
+    "welcome.title",
+    "welcome.copy",
+    "welcome.copy2",
+    "about.kicker",
+    "about.title",
+    "about.copy1",
+    "about.copy2",
+    "services.kicker",
+    "services.title",
+    "services.copy",
+    "new.kicker",
+    "new.title",
+    "new.step1.title",
+    "new.step1.copy",
+    "new.step2.title",
+    "new.step2.copy",
+    "new.step3.title",
+    "new.step3.copy",
+    "new.link",
+    "ministries.kicker",
+    "ministries.title",
+    "ministries.worship.title",
+    "ministries.worship.copy",
+    "ministries.discipleship.title",
+    "ministries.discipleship.copy",
+    "ministries.community.title",
+    "ministries.community.copy",
+    "messages.kicker",
+    "messages.title",
+    "messages.copy",
+    "giving.kicker",
+    "giving.title",
+    "giving.copy",
+    "giving.note",
+    "giving.account.label",
+    "giving.account.value",
+    "giving.asb.label",
+    "giving.asb.value",
+    "giving.fund.label",
+    "giving.fund.value",
+    "contact.kicker",
+    "contact.title",
+    "contact.copy",
+    "contact.address.label",
+    "contact.address.value",
+    "contact.pastor.label",
+    "contact.pastor.value",
+    "contact.email.label",
+    "contact.phone.label",
+    "contact.button",
+    "contact.mapButton",
+    "footer.name",
+    "footer.youtube",
+    "footer.zoom",
+    "footer.admin",
+    "footer.copy"
+  ];
+
+  const settingField = (key, lang) => `${key.replaceAll(".", "_")}_${lang}`;
+  const settingText = (settings, key) => text(settings?.[settingField(key, "zh")], settings?.[settingField(key, "en")]);
+
   const setText = (selector, value, root = document) => {
     const element = root.querySelector(selector);
     if (element && value) element.textContent = value;
+  };
+
+  const setVisible = (selector, visible) => {
+    if (visible !== false) return;
+    const element = document.querySelector(selector);
+    if (element) element.hidden = true;
   };
 
   const configureLink = (element, href) => {
@@ -43,6 +122,53 @@
       element.removeAttribute("target");
       element.removeAttribute("rel");
     }
+  };
+
+  const renderSiteSettings = (settings) => {
+    if (!settings || Array.isArray(settings)) return;
+    siteSettingKeys.forEach((key) => {
+      const value = settingText(settings, key);
+      if (!value) return;
+      document.querySelectorAll(`[data-i18n="${key}"]`).forEach((element) => {
+        element.textContent = value;
+      });
+      document.querySelectorAll(`[data-i18n-html="${key}"]`).forEach((element) => {
+        element.innerHTML = value;
+      });
+    });
+
+    setVisible(".topbar-event", settings.show_top_announcement);
+    setVisible(".topbar-action", settings.show_top_announcement);
+    setVisible(".mission-verse", settings.show_church_verse);
+    setVisible("#ministries", settings.show_ministries);
+    setVisible("#messages .video-preview", settings.show_youtube_preview);
+    setVisible("#messages .scripture-card", settings.show_bible_reading);
+    setVisible("#serving-tab", settings.show_service_roster);
+    setVisible("#serving-panel", settings.show_service_roster);
+    setVisible("#prayer-tab", settings.show_prayer_items);
+    setVisible("#prayer-panel", settings.show_prayer_items);
+    setVisible("#giving", settings.show_giving);
+    setVisible("[data-back-to-top]", settings.show_back_to_top);
+
+    if (settings.contact_email_value) {
+      document.querySelectorAll('a[href^="mailto:"]').forEach((link) => {
+        link.href = `mailto:${settings.contact_email_value}`;
+        if (link.closest(".contact-list")) link.textContent = settings.contact_email_value;
+      });
+    }
+    if (settings.contact_phone_value) {
+      document.querySelectorAll('a[href^="tel:"]').forEach((link) => {
+        link.href = `tel:${settings.contact_phone_value.replaceAll(" ", "")}`;
+        link.textContent = settings.contact_phone_value;
+      });
+    }
+    const footerLinks = document.querySelectorAll(".footer-links a");
+    configureLink(document.querySelector(".youtube-button"), settings.youtube_url);
+    configureLink(footerLinks[0], settings.youtube_url);
+    configureLink(document.querySelector(".zoom-action-row a"), settings.zoom_url);
+    configureLink(footerLinks[1], settings.zoom_url);
+    configureLink(document.querySelector(".contact-actions .button-outline"), settings.map_url);
+    configureLink(footerLinks[2], settings.admin_url);
   };
 
   const renderTopAnnouncement = (section) => {
@@ -156,6 +282,9 @@
   };
 
   const loadDirectusContent = async () => {
+    const settings = await getDirectus("site_settings");
+    renderSiteSettings(settings);
+
     const sections = await getDirectus("site_sections?filter[status][_eq]=published&fields=section_key,title_zh,title_en,content");
     const byKey = Object.fromEntries(sections.map((section) => [section.section_key, section]));
     renderTopAnnouncement(byKey.top_announcement);
