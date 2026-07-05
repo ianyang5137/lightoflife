@@ -77,6 +77,14 @@ This creates and fills the technical collections used by the public site:
 - `service_rosters`
 - `prayer_items`
 
+Clean up the Directus editing UI after seeding:
+
+```bash
+docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" < scripts/cleanup-admin-ui.sql
+```
+
+This hides duplicate technical collections, adds editable service roster rows, and applies Chinese labels for the main admin collections.
+
 ## Collections
 
 - `pages` - page content with `zh` / `en` title and body fields.

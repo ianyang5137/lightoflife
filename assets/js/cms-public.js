@@ -163,8 +163,13 @@
     renderMessages(byKey.messages);
     renderBibleReading(byKey.bible_reading);
 
-    const rosters = await getDirectus("service_rosters?filter[status][_eq]=published&fields=title_zh,title_en,current_week_label,current_week_label_en,next_week_label,next_week_label_en,rows&sort=-week_start&limit=1");
-    renderRoster(rosters[0]);
+    const rosters = await getDirectus("service_rosters?filter[status][_eq]=published&fields=id,title_zh,title_en,current_week_label,current_week_label_en,next_week_label,next_week_label_en,rows&sort=-week_start&limit=1");
+    if (rosters[0]?.id) {
+      const rosterRows = await getDirectus(`service_roster_rows?filter[roster_id][_eq]=${rosters[0].id}&fields=item_zh,item_en,current,next,emphasis,sort_order&sort=sort_order`);
+      renderRoster({ ...rosters[0], rows: rosterRows.length ? rosterRows : rosters[0].rows });
+    } else {
+      renderRoster(rosters[0]);
+    }
 
     const prayerItems = await getDirectus("prayer_items?filter[status][_eq]=published&fields=body_zh,body_en,is_pinned,sort_order&sort=-is_pinned,sort_order");
     renderPrayerItems(prayerItems);
