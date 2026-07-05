@@ -1,9 +1,9 @@
 (function () {
   const config = window.LOL_CMS_CONFIG;
-  if (!config?.supabaseUrl || !config?.supabaseKey) return;
+  if (!config?.directusUrl && (!config?.supabaseUrl || !config?.supabaseKey)) return;
 
   const language = document.documentElement.lang?.startsWith("en") ? "en" : "zh";
-  const headers = {
+  const supabaseHeaders = {
     apikey: config.supabaseKey
   };
 
@@ -14,9 +14,16 @@
     .replaceAll('"', "&quot;");
 
   const get = async (path) => {
-    const response = await fetch(`${config.supabaseUrl}/rest/v1/${path}`, { headers });
+    const response = await fetch(`${config.supabaseUrl}/rest/v1/${path}`, { headers: supabaseHeaders });
     if (!response.ok) throw new Error(`CMS request failed: ${response.status}`);
     return response.json();
+  };
+
+  const getDirectus = async (path) => {
+    const response = await fetch(`${config.directusUrl}/items/${path}`);
+    if (!response.ok) throw new Error(`Directus request failed: ${response.status}`);
+    const payload = await response.json();
+    return payload.data || [];
   };
 
   const text = (zh, en) => (language === "en" ? en || zh || "" : zh || en || "");
@@ -148,22 +155,54 @@
       .join("");
   };
 
+  const loadDirectusContent = async () => {
+    const sections = await getDirectus("site_sections?filter[status][_eq]=published&fields=section_key,title_zh,title_en,content");
+    const byKey = Object.fromEntries(sections.map((section) => [section.section_key, section]));
+    renderTopAnnouncement(byKey.top_announcement);
+    renderGatherings(byKey.gatherings);
+    renderMessages(byKey.messages);
+    renderBibleReading(byKey.bible_reading);
+
+    const rosters = await getDirectus("service_rosters?filter[status][_eq]=published&fields=title_zh,title_en,current_week_label,current_week_label_en,next_week_label,next_week_label_en,rows&sort=-week_start&limit=1");
+    renderRoster(rosters[0]);
+
+    const prayerItems = await getDirectus("prayer_items?filter[status][_eq]=published&fields=body_zh,body_en,is_pinned,sort_order&sort=-is_pinned,sort_order");
+    renderPrayerItems(prayerItems);
+  };
+
+  const loadSupabaseContent = async () => {
+    const sections = await get("site_sections?status=eq.published&select=section_key,title_zh,title_en,content");
+    const byKey = Object.fromEntries(sections.map((section) => [section.section_key, section]));
+    renderTopAnnouncement(byKey.top_announcement);
+    renderGatherings(byKey.gatherings);
+    renderMessages(byKey.messages);
+    renderBibleReading(byKey.bible_reading);
+
+    const rosters = await get("service_rosters?status=eq.published&select=title_zh,title_en,current_week_label,next_week_label,rows&order=week_start.desc&limit=1");
+    renderRoster(rosters[0]);
+
+    const prayerItems = await get("prayer_items?status=eq.published&select=body_zh,body_en,is_pinned,sort_order,created_at&order=is_pinned.desc,sort_order.asc,created_at.desc");
+    renderPrayerItems(prayerItems);
+  };
+
   const loadCmsContent = async () => {
     try {
-      const sections = await get("site_sections?status=eq.published&select=section_key,title_zh,title_en,content");
-      const byKey = Object.fromEntries(sections.map((section) => [section.section_key, section]));
-      renderTopAnnouncement(byKey.top_announcement);
-      renderGatherings(byKey.gatherings);
-      renderMessages(byKey.messages);
-      renderBibleReading(byKey.bible_reading);
-
-      const rosters = await get("service_rosters?status=eq.published&select=title_zh,title_en,current_week_label,next_week_label,rows&order=week_start.desc&limit=1");
-      renderRoster(rosters[0]);
-
-      const prayerItems = await get("prayer_items?status=eq.published&select=body_zh,body_en,is_pinned,sort_order,created_at&order=is_pinned.desc,sort_order.asc,created_at.desc");
-      renderPrayerItems(prayerItems);
+      if (config.directusUrl) {
+        await loadDirectusContent();
+      } else {
+        await loadSupabaseContent();
+      }
     } catch (error) {
-      console.warn("CMS content fallback used.", error);
+      if (config.directusUrl && config.supabaseUrl && config.supabaseKey) {
+        try {
+          await loadSupabaseContent();
+          return;
+        } catch (fallbackError) {
+          console.warn("CMS content fallback used.", fallbackError);
+        }
+      } else {
+        console.warn("CMS content fallback used.", error);
+      }
     }
   };
 
