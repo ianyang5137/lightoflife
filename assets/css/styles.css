@@ -231,14 +231,19 @@ button {
 }
 
 .language-switch button {
-  min-width: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
   border: 0;
   border-radius: 999px;
-  padding: 8px 10px;
+  padding: 0;
   background: transparent;
   color: var(--muted);
   cursor: pointer;
   font-weight: 700;
+  line-height: 1;
 }
 
 .language-switch button.active {
@@ -1319,8 +1324,8 @@ dd {
   }
 
   .language-switch button {
-    min-width: 38px;
-    padding: 7px 8px;
+    width: 38px;
+    height: 38px;
   }
 
   .hero {
