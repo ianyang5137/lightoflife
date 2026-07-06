@@ -238,7 +238,7 @@ async function seedSettings(token) {
     youtube_url: "https://www.youtube.com/@生命之光灵粮堂教会",
     zoom_url: "https://zoom.us/j/8427078200",
     map_url: "https://www.google.com/maps/search/?api=1&query=72%20View%20Road%2C%20Mount%20Eden%2C%20Auckland%201024",
-    admin_url: "/admin/"
+    admin_url: "https://admin.lightoflife.org.nz/admin/"
   };
   for (const [key, [zh, en]] of Object.entries(translations)) {
     payload[keyToField(key, "zh")] = zh;
