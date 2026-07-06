@@ -124,6 +124,12 @@
     }
   };
 
+  const assetUrl = (file) => {
+    if (!file) return "";
+    if (typeof file === "string") return `${config.directusUrl}/assets/${file}`;
+    return file.id ? `${config.directusUrl}/assets/${file.id}` : "";
+  };
+
   const renderSiteSettings = (settings) => {
     if (!settings || Array.isArray(settings)) return;
     siteSettingKeys.forEach((key) => {
@@ -191,6 +197,23 @@
     configureLink(actionLink, url);
   };
 
+  const renderTopAnnouncementItem = (item) => {
+    if (!item || item.visible === false || item.status === "archived" || item.status === "draft") return;
+    renderTopAnnouncement({
+      content: {
+        label_zh: item.label_zh,
+        label_en: item.label_en,
+        headline_zh: item.headline_zh,
+        headline_en: item.headline_en,
+        detail_zh: item.detail_zh,
+        detail_en: item.detail_en,
+        cta_zh: item.cta_zh,
+        cta_en: item.cta_en,
+        url: item.url
+      }
+    });
+  };
+
   const renderGatherings = (section) => {
     const items = section?.content?.items;
     if (!Array.isArray(items)) return;
@@ -203,6 +226,21 @@
       setText("h3 + p + p", text(item.description_zh, item.description_en), card);
       const image = card.querySelector("img");
       if (image && item.image) image.src = item.image;
+    });
+  };
+
+  const renderGatheringItems = (items) => {
+    if (!Array.isArray(items) || !items.length) return;
+    const cards = document.querySelectorAll("#services .info-card");
+    items.slice(0, cards.length).forEach((item, index) => {
+      const card = cards[index];
+      if (!card) return;
+      setText("h3", text(item.title_zh, item.title_en), card);
+      setText("h3 + p", text(item.time_zh, item.time_en), card);
+      setText("h3 + p + p", text(item.description_zh, item.description_en), card);
+      const image = card.querySelector("img");
+      const src = assetUrl(item.image_file) || item.image_path;
+      if (image && src) image.src = src;
     });
   };
 
@@ -227,6 +265,23 @@
     if (iframe && embedUrl) iframe.src = embedUrl;
   };
 
+  const renderMessagesData = (settings, latest) => {
+    if (!settings && !latest) return;
+    const card = document.querySelector("#messages .online-card");
+    if (!card) return;
+    if (settings?.status !== "draft" && settings?.status !== "archived") {
+      setText("h3", text(settings?.title_zh, settings?.title_en), card);
+      setText("h3 + p", text(settings?.description_zh, settings?.description_en), card);
+      const button = card.querySelector("a.button");
+      if (button && settings?.youtube_url) button.href = settings.youtube_url;
+      const buttonText = button?.querySelector("span");
+      if (buttonText) buttonText.textContent = text(settings?.button_zh, settings?.button_en) || buttonText.textContent;
+    }
+    const iframe = card.querySelector("iframe");
+    const embedUrl = latest?.embed_url || (latest?.video_id ? `https://www.youtube.com/embed/${latest.video_id}` : "");
+    if (iframe && embedUrl) iframe.src = embedUrl;
+  };
+
   const renderBibleReading = (section) => {
     const content = section?.content || {};
     const card = document.querySelector("#messages .scripture-card");
@@ -247,6 +302,29 @@
     if (zoomLink && content.zoom_url) zoomLink.href = content.zoom_url;
     const zoomCode = card.querySelector(".zoom-code");
     if (zoomCode && content.zoom_id) zoomCode.textContent = `Zoom （${content.zoom_id}）`;
+  };
+
+  const renderBibleReadingData = (reading, questions) => {
+    if (!reading || reading.visible === false || reading.status === "draft" || reading.status === "archived") return;
+    const card = document.querySelector("#messages .scripture-card");
+    if (!card) return;
+    setText("h3", text(reading.title_zh, reading.title_en), card);
+    setText("h3 + p", text(reading.time_zh, reading.time_en), card);
+    setText(".scripture-passage", language === "en"
+      ? `Current reading: ${reading.scripture_en || reading.scripture_zh || ""}`
+      : `本次經文：${reading.scripture_zh || reading.scripture_en || ""}`,
+      card
+    );
+    const list = card.querySelector(".question-list ol");
+    if (list && Array.isArray(questions) && questions.length) {
+      list.innerHTML = questions
+        .map((question) => `<li>${escapeHtml(text(question.question_zh, question.question_en))}</li>`)
+        .join("");
+    }
+    const zoomLink = card.querySelector(".zoom-action-row a");
+    if (zoomLink && reading.zoom_url) zoomLink.href = reading.zoom_url;
+    const zoomCode = card.querySelector(".zoom-code");
+    if (zoomCode && reading.zoom_id) zoomCode.textContent = `Zoom （${reading.zoom_id}）`;
   };
 
   const renderRoster = (roster) => {
@@ -287,10 +365,24 @@
 
     const sections = await getDirectus("site_sections?filter[status][_eq]=published&fields=section_key,title_zh,title_en,content");
     const byKey = Object.fromEntries(sections.map((section) => [section.section_key, section]));
-    renderTopAnnouncement(byKey.top_announcement);
-    renderGatherings(byKey.gatherings);
-    renderMessages(byKey.messages);
-    renderBibleReading(byKey.bible_reading);
+
+    const [topAnnouncement, gatheringItems, messageSettings, youtubeLatest, bibleReadings, bibleQuestions] = await Promise.all([
+      getDirectus("homepage_announcements").catch(() => null),
+      getDirectus("gathering_items?filter[status][_eq]=published&fields=title_zh,title_en,time_zh,time_en,description_zh,description_en,image_path,image_file,sort_order,status&sort=sort_order").catch(() => []),
+      getDirectus("message_settings").catch(() => null),
+      getDirectus("youtube_latest").catch(() => null),
+      getDirectus("bible_readings").catch(() => null),
+      getDirectus("bible_reading_questions?filter[status][_eq]=published&fields=question_zh,question_en,sort_order,status&sort=sort_order").catch(() => [])
+    ]);
+
+    renderTopAnnouncementItem(topAnnouncement);
+    if (!topAnnouncement) renderTopAnnouncement(byKey.top_announcement);
+    if (gatheringItems.length) renderGatheringItems(gatheringItems);
+    else renderGatherings(byKey.gatherings);
+    if (messageSettings || youtubeLatest) renderMessagesData(messageSettings, youtubeLatest);
+    else renderMessages(byKey.messages);
+    if (bibleReadings) renderBibleReadingData(bibleReadings, bibleQuestions);
+    else renderBibleReading(byKey.bible_reading);
 
     const rosters = await getDirectus("service_rosters?filter[status][_eq]=published&fields=id,title_zh,title_en,current_week_label,current_week_label_en,next_week_label,next_week_label_en,rows&sort=-week_start&limit=1");
     if (rosters[0]?.id) {

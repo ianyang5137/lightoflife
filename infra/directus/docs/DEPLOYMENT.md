@@ -16,6 +16,8 @@ This directory deploys the first phase of the new CMS stack:
 - `nginx/lightoflife-directus.conf` - container Nginx config.
 - `nginx/admin.lightoflife.org.nz.conf` - host Nginx SSL reverse proxy config.
 - `scripts/init-directus.mjs` - creates collections, fields, roles and permissions.
+- `scripts/optimize-admin-experience.mjs` - creates editor-friendly collections, roles and permissions for day-to-day content editing.
+- `scripts/optimize-admin-ui.sql` - reorders and labels admin collections, then hides technical fallback collections.
 - `scripts/sync-youtube-latest.mjs` - syncs the latest YouTube video into the homepage message section.
 - `scripts/backup.sh` - daily backup job used by the backup container.
 
@@ -94,6 +96,24 @@ ADMIN_PASSWORD='your-admin-password' DIRECTUS_URL='https://admin.lightoflife.org
 
 This creates the `site_settings` singleton for stable homepage copy, section headings, contact links, footer links and common visibility switches.
 
+Create the editor-friendly homepage collections:
+
+```bash
+ADMIN_PASSWORD='your-admin-password' DIRECTUS_URL='https://admin.lightoflife.org.nz' node scripts/optimize-admin-experience.mjs
+docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" < scripts/optimize-admin-ui.sql
+```
+
+This keeps the public website visually unchanged, but makes the admin easier to edit by splitting JSON content into normal Directus records:
+
+- `homepage_announcements` - top event/notice bar.
+- `gathering_items` - the three gathering cards with image upload support.
+- `message_settings` - Sunday message card text and YouTube channel button.
+- `youtube_latest` - read-only latest YouTube video synced by the cron service.
+- `bible_readings` - online Bible reading time, scripture and Zoom information.
+- `bible_reading_questions` - editable Bible reading question rows.
+
+The older `site_sections` collection remains as a technical fallback for compatibility and is hidden from the normal sidebar.
+
 ## YouTube Latest Video Sync
 
 The `youtube_sync` service runs once when it starts and then every Sunday at 19:15 New Zealand time:
@@ -102,7 +122,7 @@ The `youtube_sync` service runs once when it starts and then every Sunday at 19:
 15 19 * * 0
 ```
 
-It updates the `messages` record in `site_sections` with the latest video ID and embed URL from the church YouTube channel. It tries YouTube Data API first when `YOUTUBE_API_KEY` is available, then falls back to YouTube's public RSS feed.
+It updates the `youtube_latest` singleton and the fallback `messages` record in `site_sections` with the latest video ID and embed URL from the church YouTube channel. It tries YouTube Data API first when `YOUTUBE_API_KEY` is available, then falls back to YouTube's public RSS feed.
 
 Manual sync:
 
@@ -113,6 +133,12 @@ docker compose run --rm youtube_sync node scripts/sync-youtube-latest.mjs
 ## Collections
 
 - `site_settings` - basic site copy, common links and visibility switches used by the public website.
+- `homepage_announcements` - top event/notice bar.
+- `gathering_items` - gathering cards with `zh` / `en` text and image upload support.
+- `message_settings` - Sunday message card text and YouTube channel button.
+- `youtube_latest` - latest YouTube video, maintained by the sync job.
+- `bible_readings` - online Bible reading time, scripture and Zoom information.
+- `bible_reading_questions` - online Bible reading discussion questions.
 - `pages` - page content with `zh` / `en` title and body fields.
 - `sermons` - weekly sermon title, speaker, date, content, audio URL, YouTube URL and cover image.
 - `events` - event calendar title, date, time, location, description and cover image.
@@ -127,7 +153,11 @@ Directus built-in users and roles are used for admin accounts.
 ## Roles
 
 - `Administrator` - Directus built-in full access.
-- `Editor` - can create, read, update and delete pages, announcements, events, sermons and gallery; read-only for other collections.
+- `Content Editor` - can edit basic site settings, homepage content, announcements, events, sermons, gallery and small groups.
+- `Roster Editor` - can edit service rosters only.
+- `Prayer Editor` - can edit prayer items only.
+- `Media Editor` - can edit Sunday message settings, latest video data, sermons and gallery.
+- `Editor` - legacy general editor role from the initial setup.
 - `Viewer` - read-only access to website content collections.
 
 ## Backups

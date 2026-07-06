@@ -112,6 +112,23 @@ async function getLatestVideo() {
 
 async function updateDirectus(video) {
   const token = await login();
+  await request("/items/youtube_latest", {
+    method: "PATCH",
+    headers: jsonHeaders(token),
+    body: JSON.stringify({
+      video_id: video.video_id,
+      title: video.title,
+      published_at: video.published_at,
+      url: video.url,
+      embed_url: video.embed_url,
+      thumbnail_url: video.thumbnail_url,
+      synced_at: new Date().toISOString(),
+      status: "published"
+    })
+  }).catch((error) => {
+    console.warn(`youtube_latest update skipped: ${error.message}`);
+  });
+
   const sections = await request(`/items/site_sections?filter[section_key][_eq]=${encodeURIComponent(SECTION_KEY)}&limit=1`, {
     headers: jsonHeaders(token)
   });
