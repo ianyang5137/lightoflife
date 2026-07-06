@@ -16,6 +16,7 @@ This directory deploys the first phase of the new CMS stack:
 - `nginx/lightoflife-directus.conf` - container Nginx config.
 - `nginx/admin.lightoflife.org.nz.conf` - host Nginx SSL reverse proxy config.
 - `scripts/init-directus.mjs` - creates collections, fields, roles and permissions.
+- `scripts/sync-youtube-latest.mjs` - syncs the latest YouTube video into the homepage message section.
 - `scripts/backup.sh` - daily backup job used by the backup container.
 
 ## Server Path
@@ -92,6 +93,22 @@ ADMIN_PASSWORD='your-admin-password' DIRECTUS_URL='https://admin.lightoflife.org
 ```
 
 This creates the `site_settings` singleton for stable homepage copy, section headings, contact links, footer links and common visibility switches.
+
+## YouTube Latest Video Sync
+
+The `youtube_sync` service runs once when it starts and then every Sunday at 19:15 New Zealand time:
+
+```text
+15 19 * * 0
+```
+
+It updates the `messages` record in `site_sections` with the latest video ID and embed URL from the church YouTube channel. It tries YouTube Data API first when `YOUTUBE_API_KEY` is available, then falls back to YouTube's public RSS feed.
+
+Manual sync:
+
+```bash
+docker compose run --rm youtube_sync node scripts/sync-youtube-latest.mjs
+```
 
 ## Collections
 

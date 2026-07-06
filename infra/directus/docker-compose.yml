@@ -79,6 +79,28 @@ services:
       "echo '0 2 * * * /usr/local/bin/backup.sh >> /backups/backup.log 2>&1' > /etc/crontabs/root
       && crond -f -l 8"
 
+  youtube_sync:
+    image: node:22-alpine
+    container_name: lightoflife-youtube-sync
+    restart: unless-stopped
+    depends_on:
+      - directus
+    working_dir: /app
+    environment:
+      TZ: ${TZ}
+      DIRECTUS_URL: http://directus:8055
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      YOUTUBE_CHANNEL_ID: ${YOUTUBE_CHANNEL_ID}
+      YOUTUBE_API_KEY: ${YOUTUBE_API_KEY}
+    volumes:
+      - ./scripts:/app/scripts:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "echo '15 19 * * 0 cd /app && node scripts/sync-youtube-latest.mjs >> /proc/1/fd/1 2>&1' > /etc/crontabs/root
+      && node scripts/sync-youtube-latest.mjs || true
+      && crond -f -l 8"
+
 volumes:
   postgres_data:
   directus_uploads:
