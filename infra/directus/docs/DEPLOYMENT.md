@@ -46,6 +46,8 @@ nano .env
 docker compose up -d
 ```
 
+If GitHub Pages reports `Deployment failed, try again later` while the build job is green, retry the Pages deployment. This is a GitHub Pages deployment-side transient failure, not a Directus stack failure.
+
 Then install the host Nginx config and certificate:
 
 ```bash
