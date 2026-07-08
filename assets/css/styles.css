@@ -1205,7 +1205,7 @@ dd {
 .not-found-page,
 .not-found-main {
   min-height: 100vh;
-  background: var(--green-deep);
+  background: var(--bg);
 }
 
 .not-found-hero {
@@ -1214,7 +1214,7 @@ dd {
   display: grid;
   place-items: center;
   overflow: hidden;
-  color: #fff;
+  color: var(--ink);
 }
 
 .not-found-media,
@@ -1224,100 +1224,75 @@ dd {
 }
 
 .not-found-media {
-  background: url("https://images.unsplash.com/photo-1732913598646-65410d3278f2?auto=format&fit=crop&w=1800&q=82") center / cover;
-  filter: saturate(0.86);
-  transform: scale(1.02);
+  background:
+    linear-gradient(135deg, rgba(37, 95, 82, 0.08), transparent 46%),
+    linear-gradient(0deg, rgba(234, 220, 192, 0.22), transparent 54%);
 }
 
 .not-found-overlay {
-  background:
-    linear-gradient(90deg, rgba(18, 60, 52, 0.95), rgba(18, 60, 52, 0.72), rgba(18, 60, 52, 0.48)),
-    radial-gradient(circle at 18% 28%, rgba(184, 138, 61, 0.22), transparent 32%);
+  background: none;
 }
 
 .not-found-content {
   position: relative;
   z-index: 1;
-  width: min(780px, calc(100% - 40px));
-  padding: clamp(54px, 8vw, 82px) 0;
+  width: min(680px, calc(100% - 40px));
+  padding: clamp(42px, 7vw, 68px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: var(--shadow);
 }
 
 .not-found-brand {
   display: inline-flex;
-  margin-bottom: clamp(34px, 6vw, 58px);
+  margin-bottom: clamp(30px, 5vw, 44px);
 }
 
 .not-found-brand img {
-  width: clamp(188px, 24vw, 286px);
+  width: clamp(174px, 22vw, 248px);
   height: auto;
-  filter: brightness(0) invert(1);
+  filter: brightness(0) saturate(100%) invert(18%) sepia(20%) saturate(969%) hue-rotate(119deg) brightness(94%) contrast(93%);
 }
 
 .not-found-content .section-kicker {
-  color: var(--gold-soft);
+  color: var(--gold);
 }
 
 .not-found-content h1 {
-  max-width: 860px;
+  max-width: 620px;
   margin: 0;
-  font-size: clamp(2.55rem, 6.2vw, 5rem);
-  line-height: 1.08;
+  font-size: clamp(2.2rem, 5vw, 4.2rem);
+  line-height: 1.12;
   letter-spacing: 0;
 }
 
 .not-found-copy {
-  max-width: 660px;
-  margin: 24px 0 0;
-  color: rgba(255, 255, 255, 0.84);
-  font-size: clamp(1.05rem, 2vw, 1.2rem);
+  max-width: 520px;
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.7vw, 1.12rem);
 }
 
 .not-found-actions {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-  margin-top: 30px;
+  margin-top: 28px;
 }
 
 .button-quiet {
-  border: 1px solid rgba(255, 255, 255, 0.34);
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--green);
 }
 
 .button-quiet:hover,
 .button-quiet:focus-visible {
-  border-color: rgba(255, 255, 255, 0.58);
-  background: rgba(255, 255, 255, 0.16);
-  color: #fff;
+  border-color: rgba(37, 95, 82, 0.28);
+  background: var(--green-tint);
+  color: var(--green-deep);
   transform: translateY(-1px);
-}
-
-.not-found-verse {
-  max-width: 720px;
-  margin: clamp(38px, 6vw, 62px) 0 0;
-  padding-left: 20px;
-  border-left: 3px solid var(--gold);
-}
-
-.not-found-verse p {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.92);
-  font-family: var(--font-heading);
-  font-size: clamp(1.28rem, 2.6vw, 2rem);
-  font-weight: 700;
-  line-height: 1.48;
-}
-
-.not-found-verse cite {
-  display: block;
-  margin-top: 12px;
-  color: var(--gold-soft);
-  font-family: var(--font-ui);
-  font-style: normal;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
 }
 
 @media (max-width: 900px) {
@@ -1435,8 +1410,8 @@ dd {
     aspect-ratio: 16 / 10;
   }
 
-  .not-found-overlay {
-    background: linear-gradient(0deg, rgba(18, 60, 52, 0.94), rgba(18, 60, 52, 0.66));
+  .not-found-content {
+    width: min(100% - 28px, 680px);
   }
 }
 
@@ -1499,11 +1474,11 @@ dd {
 
   .not-found-content {
     width: min(100% - 28px, var(--max));
-    padding: 42px 0;
+    padding: 30px 24px;
   }
 
   .not-found-brand {
-    margin-bottom: 34px;
+    margin-bottom: 28px;
   }
 
   .not-found-actions,
@@ -1511,7 +1486,4 @@ dd {
     width: 100%;
   }
 
-  .not-found-verse {
-    padding-left: 16px;
-  }
 }
