@@ -1224,7 +1224,7 @@ dd {
 }
 
 .not-found-media {
-  background: url("/assets/images/sunday-worship.jpg") center / cover;
+  background: url("https://images.unsplash.com/photo-1732913598646-65410d3278f2?auto=format&fit=crop&w=1800&q=82") center / cover;
   filter: saturate(0.86);
   transform: scale(1.02);
 }
