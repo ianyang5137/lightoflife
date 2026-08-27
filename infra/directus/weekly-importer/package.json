@@ -1,0 +1,11 @@
+{
+  "name": "lightoflife-weekly-importer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/worker.mjs",
+    "parse-local": "node src/parse-local.mjs"
+  },
+  "dependencies": {}
+}

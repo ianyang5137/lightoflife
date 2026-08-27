@@ -101,6 +101,22 @@ services:
       && node scripts/sync-youtube-latest.mjs || true
       && crond -f -l 8"
 
+  weekly_importer:
+    build: ./weekly-importer
+    container_name: lightoflife-weekly-importer
+    restart: unless-stopped
+    depends_on:
+      - directus
+    environment:
+      TZ: ${TZ}
+      DIRECTUS_URL: http://directus:8055
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      WEEKLY_IMPORT_INTERVAL_SECONDS: ${WEEKLY_IMPORT_INTERVAL_SECONDS:-60}
+    volumes:
+      - weekly_importer_tmp:/tmp/weekly-importer
+
 volumes:
   postgres_data:
   directus_uploads:
+  weekly_importer_tmp:

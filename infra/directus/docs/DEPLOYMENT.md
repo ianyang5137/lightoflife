@@ -19,6 +19,8 @@ This directory deploys the first phase of the new CMS stack:
 - `scripts/optimize-admin-experience.mjs` - creates editor-friendly collections, roles and permissions for day-to-day content editing.
 - `scripts/optimize-admin-ui.sql` - reorders and labels admin collections, then hides technical fallback collections.
 - `scripts/sync-youtube-latest.mjs` - syncs the latest YouTube video into the homepage message section.
+- `scripts/setup-weekly-bulletins.mjs` - creates the weekly bulletin import collection.
+- `weekly-importer/` - parses uploaded weekly bulletin PDFs and publishes reviewed content into the frontend collections.
 - `scripts/backup.sh` - daily backup job used by the backup container.
 
 ## Server Path
@@ -116,6 +118,15 @@ This keeps the public website visually unchanged, but makes the admin easier to 
 
 The older `site_sections` collection remains as a technical fallback for compatibility and is hidden from the normal sidebar.
 
+Create the weekly bulletin import workflow:
+
+```bash
+ADMIN_PASSWORD='your-admin-password' DIRECTUS_URL='https://admin.lightoflife.org.nz' node scripts/setup-weekly-bulletins.mjs
+docker compose up -d --build weekly_importer
+```
+
+See `docs/WEEKLY_BULLETIN_IMPORT.md` for the weekly upload, review and publish workflow.
+
 ## YouTube Latest Video Sync
 
 The `youtube_sync` service runs once when it starts and then every Sunday at 19:15 New Zealand time:
@@ -141,6 +152,7 @@ docker compose run --rm youtube_sync node scripts/sync-youtube-latest.mjs
 - `youtube_latest` - latest YouTube video, maintained by the sync job.
 - `bible_readings` - online Bible reading time, scripture and Zoom information.
 - `bible_reading_questions` - online Bible reading discussion questions.
+- `weekly_bulletins` - weekly bulletin PDFs, parser preview data and publish snapshots.
 - `pages` - page content with `zh` / `en` title and body fields.
 - `sermons` - weekly sermon title, speaker, date, content, audio URL, YouTube URL and cover image.
 - `events` - event calendar title, date, time, location, description and cover image.
