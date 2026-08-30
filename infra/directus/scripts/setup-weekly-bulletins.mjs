@@ -42,26 +42,38 @@ async function exists(path, token) {
 }
 
 async function createCollection(token) {
-  if (await exists("/collections/weekly_bulletins", token)) return;
+  const meta = {
+    collection: "weekly_bulletins",
+    icon: "upload_file",
+    note: "上传周报 PDF，系统自动解析，审核后发布到前台。",
+    singleton: false,
+    accountability: "all",
+    display_template: "{{title}}",
+    translations: [
+      { language: "zh-Hans", translation: "周报导入" },
+      { language: "zh-CN", translation: "周报导入" },
+      { language: "zh-Hant", translation: "週報導入" },
+      { language: "zh-TW", translation: "週報導入" },
+      { language: "en-US", translation: "Weekly Bulletin Import" }
+    ],
+    sort: 9
+  };
+
+  if (await exists("/collections/weekly_bulletins", token)) {
+    await request("/collections/weekly_bulletins", {
+      method: "PATCH",
+      headers: jsonHeaders(token),
+      body: JSON.stringify({ meta })
+    });
+    return;
+  }
+
   await request("/collections", {
     method: "POST",
     headers: jsonHeaders(token),
     body: JSON.stringify({
       collection: "weekly_bulletins",
-      meta: {
-        collection: "weekly_bulletins",
-        icon: "upload_file",
-        note: "上传周报 PDF，系统自动解析，审核后发布到前台。",
-        singleton: false,
-        accountability: "all",
-        display_template: "{{title}}",
-        translations: [
-          { language: "zh-Hans", translation: "周报导入" },
-          { language: "zh-Hant", translation: "週報導入" },
-          { language: "en-US", translation: "Weekly Bulletin Import" }
-        ],
-        sort: 9
-      },
+      meta,
       schema: { name: "weekly_bulletins" }
     })
   });
@@ -85,52 +97,62 @@ async function createField(token, field) {
   console.log(`Created field: weekly_bulletins.${field.field}`);
 }
 
-function input(field, note, width = "half", required = false) {
+function labels(zhHans, zhHant = zhHans, en = zhHans) {
+  return [
+    { language: "zh-Hans", translation: zhHans },
+    { language: "zh-CN", translation: zhHans },
+    { language: "zh-Hant", translation: zhHant },
+    { language: "zh-TW", translation: zhHant },
+    { language: "en-US", translation: en }
+  ];
+}
+
+function input(field, note, width = "half", required = false, translations = null) {
   return {
     field,
     type: "string",
-    meta: { interface: "input", width, note, required },
+    meta: { interface: "input", width, note, required, translations },
     schema: { data_type: "varchar", max_length: 255, is_nullable: !required }
   };
 }
 
-function text(field, note) {
+function text(field, note, translations = null) {
   return {
     field,
     type: "text",
-    meta: { interface: "input-multiline", width: "full", note },
+    meta: { interface: "input-multiline", width: "full", note, translations },
     schema: { data_type: "text", is_nullable: true }
   };
 }
 
-function date(field, note) {
+function date(field, note, translations = null) {
   return {
     field,
     type: "date",
-    meta: { interface: "datetime", width: "half", note },
+    meta: { interface: "datetime", width: "half", note, translations },
     schema: { data_type: "date", is_nullable: true }
   };
 }
 
-function integer(field, note) {
+function integer(field, note, translations = null) {
   return {
     field,
     type: "integer",
-    meta: { interface: "input", width: "half", note },
+    meta: { interface: "input", width, note, translations },
     schema: { data_type: "integer", is_nullable: true }
   };
 }
 
-function datetime(field, note) {
+function datetime(field, note, translations = null) {
   return {
     field,
     type: "dateTime",
-    meta: { interface: "datetime", width: "half", note },
+    meta: { interface: "datetime", width: "half", note, translations },
     schema: { data_type: "timestamp with time zone", is_nullable: true }
   };
 }
 
-function file(field, note) {
+function file(field, note, translations = null) {
   return {
     field,
     type: "uuid",
@@ -138,17 +160,18 @@ function file(field, note) {
       interface: "file",
       special: ["file"],
       width: "full",
-      note: `${note}。如果弹出文件库，请点击右上角新增/上传按钮上传 PDF。`
+      note: `${note}。如果弹出文件库，请点击右上角新增/上传按钮上传 PDF。`,
+      translations
     },
     schema: { data_type: "uuid", is_nullable: true, foreign_key_table: "directus_files", foreign_key_column: "id" }
   };
 }
 
-function json(field, note) {
+function json(field, note, translations = null) {
   return {
     field,
     type: "json",
-    meta: { interface: "input-code", options: { language: "json" }, width: "full", note },
+    meta: { interface: "input-code", options: { language: "json" }, width: "full", note, translations },
     schema: { data_type: "json", is_nullable: true }
   };
 }
@@ -161,6 +184,7 @@ function status() {
       interface: "select-dropdown",
       width: "half",
       note: "上传后保持“已上传”。系统解析完成后会改成“等待审核”。检查无误后改成“请求发布”。",
+      translations: labels("处理状态", "處理狀態", "Process Status"),
       options: {
         choices: [
           { text: "已上传，等待解析", value: "uploaded" },
@@ -178,18 +202,18 @@ function status() {
 
 async function setupFields(token) {
   const fields = [
-    input("title", "标题，例如：2026年8月23日周报", "full", true),
-    date("bulletin_date", "周报日期"),
-    integer("issue_number", "期数"),
-    file("pdf_file", "上传周报 PDF"),
+    input("title", "标题，例如：2026年8月23日周报", "full", true, labels("标题", "標題", "Title")),
+    date("bulletin_date", "周报日期", labels("周报日期", "週報日期", "Bulletin Date")),
+    integer("issue_number", "期数", labels("期数", "期數", "Issue Number")),
+    file("pdf_file", "上传周报 PDF", labels("PDF 文件", "PDF 檔案", "PDF File")),
     status(),
-    text("parsed_summary", "解析预览摘要。请先检查这里，再请求发布。"),
-    json("parsed_data", "机器解析后的结构化数据。通常不需要手动修改。"),
-    text("raw_text", "PDF 原始文本，方便排查解析问题。"),
-    text("error_message", "错误信息"),
-    datetime("parsed_at", "解析时间"),
-    datetime("published_at", "发布时间"),
-    json("published_snapshot", "发布前备份快照")
+    text("parsed_summary", "解析预览摘要。请先检查这里，再请求发布。", labels("解析预览摘要", "解析預覽摘要", "Parsed Summary")),
+    json("parsed_data", "机器解析后的结构化数据。通常不需要手动修改。", labels("解析数据", "解析資料", "Parsed Data")),
+    text("raw_text", "PDF 原始文本，方便排查解析问题。", labels("PDF 原始文本", "PDF 原始文字", "Raw PDF Text")),
+    text("error_message", "错误信息", labels("错误信息", "錯誤資訊", "Error Message")),
+    datetime("parsed_at", "解析时间", labels("解析时间", "解析時間", "Parsed At")),
+    datetime("published_at", "发布时间", labels("发布时间", "發布時間", "Published At")),
+    json("published_snapshot", "发布前备份快照", labels("发布前备份", "發布前備份", "Published Snapshot"))
   ];
 
   for (const field of fields) await createField(token, field);
