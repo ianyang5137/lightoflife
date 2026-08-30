@@ -15,6 +15,19 @@ This importer lets the church upload a weekly bulletin PDF, review the parsed re
 
 The public website keeps the same layout and styling. Only the Directus content records are updated.
 
+## Uploading the PDF
+
+The `PDF File` field uses the Directus file picker. It should offer upload from device, choose from library, and import from URL.
+
+If you only see the file library:
+
+1. Open the left-side `文件库`.
+2. Upload the weekly PDF there.
+3. Return to `周报导入`.
+4. Open `PDF File` and choose the PDF you just uploaded.
+
+If the upload button is missing for a non-admin user, check that the user's role has `create` permission for `directus_files` and `directus_folders`.
+
 ## What It Publishes
 
 - `主日信息设置`

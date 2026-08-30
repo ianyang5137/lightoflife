@@ -69,7 +69,14 @@ async function createCollection(token) {
 }
 
 async function createField(token, field) {
-  if (await exists(`/fields/weekly_bulletins/${field.field}`, token)) return;
+  if (await exists(`/fields/weekly_bulletins/${field.field}`, token)) {
+    await request(`/fields/weekly_bulletins/${field.field}`, {
+      method: "PATCH",
+      headers: jsonHeaders(token),
+      body: JSON.stringify({ meta: field.meta })
+    });
+    return;
+  }
   await request("/fields/weekly_bulletins", {
     method: "POST",
     headers: jsonHeaders(token),
@@ -127,7 +134,12 @@ function file(field, note) {
   return {
     field,
     type: "uuid",
-    meta: { interface: "file", special: ["file"], width: "full", note },
+    meta: {
+      interface: "file",
+      special: ["file"],
+      width: "full",
+      note: `${note}。如果弹出文件库，请点击右上角新增/上传按钮上传 PDF。`
+    },
     schema: { data_type: "uuid", is_nullable: true, foreign_key_table: "directus_files", foreign_key_column: "id" }
   };
 }
@@ -188,8 +200,8 @@ async function findPolicy(token, name) {
   return data.data?.[0] || null;
 }
 
-async function ensurePermission(token, policyId, action, fields = ["*"]) {
-  const existing = await request(`/permissions?filter[policy][_eq]=${policyId}&filter[collection][_eq]=weekly_bulletins&filter[action][_eq]=${action}`, {
+async function ensurePermission(token, policyId, collection, action, fields = ["*"]) {
+  const existing = await request(`/permissions?filter[policy][_eq]=${policyId}&filter[collection][_eq]=${collection}&filter[action][_eq]=${action}`, {
     headers: jsonHeaders(token)
   }).catch(() => ({ data: [] }));
   if (existing.data?.length) {
@@ -203,7 +215,7 @@ async function ensurePermission(token, policyId, action, fields = ["*"]) {
   await request("/permissions", {
     method: "POST",
     headers: jsonHeaders(token),
-    body: JSON.stringify({ policy: policyId, collection: "weekly_bulletins", action, permissions: {}, validation: {}, presets: null, fields })
+    body: JSON.stringify({ policy: policyId, collection, action, permissions: {}, validation: {}, presets: null, fields })
   });
 }
 
@@ -211,9 +223,15 @@ async function setupRolePermissions(token) {
   for (const name of ["Light of Life Content Editor Policy", "Light of Life Roster Editor Policy", "Light of Life Prayer Editor Policy"]) {
     const policy = await findPolicy(token, name);
     if (!policy) continue;
-    await ensurePermission(token, policy.id, "read");
-    await ensurePermission(token, policy.id, "create");
-    await ensurePermission(token, policy.id, "update");
+    await ensurePermission(token, policy.id, "weekly_bulletins", "read");
+    await ensurePermission(token, policy.id, "weekly_bulletins", "create");
+    await ensurePermission(token, policy.id, "weekly_bulletins", "update");
+    await ensurePermission(token, policy.id, "directus_files", "read");
+    await ensurePermission(token, policy.id, "directus_files", "create");
+    await ensurePermission(token, policy.id, "directus_files", "update");
+    await ensurePermission(token, policy.id, "directus_folders", "read");
+    await ensurePermission(token, policy.id, "directus_folders", "create");
+    await ensurePermission(token, policy.id, "directus_folders", "update");
   }
 }
 
