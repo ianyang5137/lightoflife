@@ -24,6 +24,10 @@ const zhMap = [
   ["耶稣", "耶穌"],
   ["希伯来书", "希伯來書"],
   ["姗", "姍"],
+  ["爱", "愛"],
+  ["玛", "瑪"],
+  ["约", "約"],
+  ["书", "書"],
   ["龙", "龍"],
   ["凯", "凱"],
   ["杨", "楊"],
@@ -41,6 +45,11 @@ const zhMap = [
   ["兴", "興"],
   ["荣", "榮"],
   ["圣", "聖"],
+  ["启", "啟"],
+  ["广", "廣"],
+  ["数", "數"],
+  ["与", "與"],
+  ["长", "長"],
   ["继续", "繼續"],
   ["墨尔本", "墨爾本"],
   ["福音中心", "福音中心"],
@@ -120,12 +129,19 @@ function extractSermon(text, bulletinDate) {
   if (!scriptureMatch && !speakerMatch) return null;
 
   const beforeScripture = scriptureMatch ? text.slice(0, scriptureMatch.index) : text;
-  const titleLine = beforeScripture
+  const possibleTitles = beforeScripture
     .split("\n")
     .map(normalizeZh)
     .filter(Boolean)
-    .reverse()
-    .find((line) => /凭信奔跑|憑信奔跑|仰望耶穌|仰望耶稣/.test(line));
+    .reverse();
+  const titleLine = possibleTitles.find((line) => /凭信奔跑|憑信奔跑|仰望耶穌|仰望耶稣/.test(line))
+    || possibleTitles.find((line) => {
+      if (!/[\u4e00-\u9fff]/.test(line)) return false;
+      if (line.length < 3 || line.length > 24) return false;
+      if (/\d|@|小組|團契|牧區|姐妹|弟兄|師母|傳道|聯繫|電話|主日|聚會|週|周|PM|AM/i.test(line)) return false;
+      if (/生命之光|主日崇拜|敬拜|證道|會前|司琴|陪談|迎賓|督堂/.test(line)) return false;
+      return true;
+    });
   const titleFromContactLine = beforeScripture.match(/聯繫電話[ \t]+([^\n]+)/);
   const title = normalizeZh(titleFromContactLine?.[1] || titleLine || "");
 
@@ -202,17 +218,19 @@ function extractRoster(text) {
 
   const lines = text.split("\n").filter((line) => normalizeZh(line));
   for (const [label, labelEn] of roleLabels) {
+    const aliases = label === "會前禱告／司琴" ? [label, "會前禱告/司琴"] : [label];
     const candidateIndexes = lines
       .map((item, index) => [normalizeZh(item), index])
-      .filter(([item]) => item.startsWith(label))
+      .filter(([item]) => aliases.some((alias) => item.startsWith(alias)))
       .map(([, index]) => index);
     const lineIndex = label === "青少年團契"
       ? candidateIndexes.find((index) => /傳道|姐妹|弟兄/.test(normalizeZh(lines[index]))) ?? candidateIndexes[0]
       : candidateIndexes[0];
     const line = lines[lineIndex];
     if (!line) continue;
+    const matchedLabel = aliases.find((alias) => normalizeZh(line).startsWith(alias)) || label;
     let values = line
-      .replace(label, "")
+      .replace(matchedLabel, "")
       .trim()
       .split(/\s{2,}|\t+/)
       .map(normalizeZh)
