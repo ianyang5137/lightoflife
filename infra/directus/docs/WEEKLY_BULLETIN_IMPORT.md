@@ -4,11 +4,11 @@ This importer lets the church upload a weekly bulletin PDF, review the parsed re
 
 ## Weekly Workflow
 
-1. Open the simple upload page: `https://admin.lightoflife.org.nz/weekly-upload/`
-2. Sign in with a Directus account, choose the weekly PDF, and upload it.
-3. Wait about one minute. The importer changes the status to `等待审核`.
-4. Open Directus: `https://admin.lightoflife.org.nz/admin/content/weekly_bulletins`
-5. Open the new bulletin record and check `解析预览摘要`.
+1. Sign in to Directus: `https://admin.lightoflife.org.nz/admin`
+2. Open the left-side `周报上传` module.
+3. Choose the weekly PDF and upload it.
+4. Wait about one minute. The importer changes the status to `等待审核`.
+5. Open `周报导入` / `weekly_bulletins` and check `解析预览摘要`.
 6. If the preview is correct, change status to `请求发布` and save.
 7. The importer publishes the data and changes status to `已发布`.
 
@@ -16,7 +16,9 @@ The public website keeps the same layout and styling. Only the Directus content 
 
 ## Uploading the PDF
 
-Use `https://admin.lightoflife.org.nz/weekly-upload/` for weekly PDF uploads. This avoids the Directus file picker and creates the import record automatically.
+Use the Directus `周报上传` module for weekly PDF uploads. It uses the current Directus login session, avoids the Directus file picker, and creates the import record automatically.
+
+The standalone upload page at `https://admin.lightoflife.org.nz/weekly-upload/` is kept as a fallback if the module is temporarily unavailable.
 
 The `PDF File` field in Directus uses the Directus file picker. It should offer upload from device, choose from library, and import from URL.
 
