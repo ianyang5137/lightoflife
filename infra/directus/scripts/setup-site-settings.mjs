@@ -237,7 +237,7 @@ async function seedSettings(token) {
     contact_phone_value: "027 2888283",
     youtube_url: "https://www.youtube.com/@生命之光灵粮堂教会",
     zoom_url: "https://zoom.us/j/8427078200",
-    map_url: "https://www.google.com/maps/search/?api=1&query=72%20View%20Road%2C%20Mount%20Eden%2C%20Auckland%201024",
+    map_url: "https://www.google.com/maps/search/?api=1&query=Light%20of%20Life%20Church%20Auckland%2C%2072%20View%20Road%2C%20Mount%20Eden%2C%20Auckland%201024",
     admin_url: "https://admin.lightoflife.org.nz/admin/"
   };
   for (const [key, [zh, en]] of Object.entries(translations)) {
