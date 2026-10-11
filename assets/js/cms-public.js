@@ -173,7 +173,9 @@
     configureLink(footerLinks[0], settings.youtube_url);
     configureLink(document.querySelector(".zoom-action-row a"), settings.zoom_url);
     configureLink(footerLinks[1], settings.zoom_url);
-    configureLink(document.querySelector(".contact-actions .button-outline"), settings.map_url);
+    document.querySelectorAll(".contact-actions .button-outline, .location-card .button").forEach((link) => {
+      configureLink(link, settings.map_url);
+    });
     configureLink(footerLinks[2], settings.admin_url);
   };
 
