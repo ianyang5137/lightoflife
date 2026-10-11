@@ -200,7 +200,12 @@
   };
 
   const renderTopAnnouncementItem = (item) => {
-    if (!item || item.visible === false || item.status === "archived" || item.status === "draft") return;
+    if (!item) return;
+    if (item.visible === false || item.status === "archived" || item.status === "draft") {
+      setVisible(".topbar-event", false);
+      setVisible(".topbar-action", false);
+      return;
+    }
     renderTopAnnouncement({
       content: {
         label_zh: item.label_zh,
