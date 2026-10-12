@@ -3,6 +3,7 @@
   if (!config?.directusUrl && (!config?.supabaseUrl || !config?.supabaseKey)) return;
 
   const language = document.documentElement.lang?.startsWith("en") ? "en" : "zh";
+  let showTopAnnouncement = true;
   const supabaseHeaders = {
     apikey: config.supabaseKey
   };
@@ -143,8 +144,8 @@
       });
     });
 
-    setVisible(".topbar-event", settings.show_top_announcement);
-    setVisible(".topbar-action", settings.show_top_announcement);
+    showTopAnnouncement = settings.show_top_announcement !== false;
+    setVisible(".topbar", settings.show_top_announcement);
     setVisible(".mission-verse", settings.show_church_verse);
     setVisible("#ministries", settings.show_ministries);
     setVisible("#messages .video-preview", settings.show_youtube_preview);
@@ -181,11 +182,16 @@
 
   const renderTopAnnouncement = (section) => {
     const content = section?.content || {};
+    const topbar = document.querySelector(".topbar");
     const eventLink = document.querySelector(".topbar-event");
     const actionLink = document.querySelector(".topbar-action");
     if (!eventLink || !actionLink) return;
     const label = text(content.label_zh, content.label_en);
     const headline = text(content.headline_zh, content.headline_en);
+    if (!showTopAnnouncement || !label || !headline) {
+      if (topbar) topbar.hidden = true;
+      return;
+    }
     const detail = text(content.detail_zh, content.detail_en);
     const cta = text(content.cta_zh, content.cta_en);
     const url = content.url || "#updates";
@@ -197,13 +203,13 @@
     if (cta) actionLink.textContent = cta;
     configureLink(eventLink, url);
     configureLink(actionLink, url);
+    if (topbar) topbar.hidden = false;
   };
 
   const renderTopAnnouncementItem = (item) => {
     if (!item) return;
     if (item.visible === false || item.status === "archived" || item.status === "draft") {
-      setVisible(".topbar-event", false);
-      setVisible(".topbar-action", false);
+      setVisible(".topbar", false);
       return;
     }
     renderTopAnnouncement({
